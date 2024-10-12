@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		454052C62CB6EFF700203247 /* questions.json in Resources */ = {isa = PBXBuildFile; fileRef = 454052C52CB6EFF700203247 /* questions.json */; };
 		45C56C4E2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */; };
 		45C56C502CB6A42000D09C73 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C4F2CB6A42000D09C73 /* ContentView.swift */; };
 		45C56C522CB6A42100D09C73 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 45C56C512CB6A42100D09C73 /* Assets.xcassets */; };
@@ -14,6 +15,14 @@
 		45C56C5F2CB6A42100D09C73 /* moai_baby_name_generatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C5E2CB6A42100D09C73 /* moai_baby_name_generatorTests.swift */; };
 		45C56C692CB6A42100D09C73 /* moai_baby_name_generatorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C682CB6A42100D09C73 /* moai_baby_name_generatorUITests.swift */; };
 		45C56C6B2CB6A42100D09C73 /* moai_baby_name_generatorUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C6A2CB6A42100D09C73 /* moai_baby_name_generatorUITestsLaunchTests.swift */; };
+		45D1D8832CB791AC008F752A /* SwiftOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 45D1D8822CB791AC008F752A /* SwiftOpenAI */; };
+		45D1D8862CB7966B008F752A /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 45D1D8852CB7966B008F752A /* GoogleSignInSwift */; };
+		45D1D8882CB7966D008F752A /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 45D1D8872CB7966D008F752A /* GoogleSignIn */; };
+		45D1D88C2CB7FA20008F752A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 45D1D88B2CB7FA20008F752A /* FirebaseAuth */; };
+		45D1D88E2CB7FA4D008F752A /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 45D1D88D2CB7FA4D008F752A /* FirebaseCore */; };
+		45D1D8902CB7FAF3008F752A /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 45D1D88F2CB7FAF3008F752A /* FirebaseAnalytics */; };
+		45D1D8942CB7FF7B008F752A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 45D1D8932CB7FF7B008F752A /* GoogleService-Info.plist */; };
+		45D1D8962CB802F3008F752A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 45D1D8952CB802F3008F752A /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +43,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		454052C52CB6EFF700203247 /* questions.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = questions.json; path = "moai-baby-name-generator/questions.json"; sourceTree = SOURCE_ROOT; };
 		45C56C4A2CB6A42000D09C73 /* moai-baby-name-generator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "moai-baby-name-generator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = moai_baby_name_generatorApp.swift; sourceTree = "<group>"; };
 		45C56C4F2CB6A42000D09C73 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -44,6 +54,8 @@
 		45C56C642CB6A42100D09C73 /* moai-baby-name-generatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "moai-baby-name-generatorUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		45C56C682CB6A42100D09C73 /* moai_baby_name_generatorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = moai_baby_name_generatorUITests.swift; sourceTree = "<group>"; };
 		45C56C6A2CB6A42100D09C73 /* moai_baby_name_generatorUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = moai_baby_name_generatorUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		45D1D8892CB79676008F752A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		45D1D8932CB7FF7B008F752A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +63,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				45D1D8832CB791AC008F752A /* SwiftOpenAI in Frameworks */,
+				45D1D88E2CB7FA4D008F752A /* FirebaseCore in Frameworks */,
+				45D1D8902CB7FAF3008F752A /* FirebaseAnalytics in Frameworks */,
+				45D1D8862CB7966B008F752A /* GoogleSignInSwift in Frameworks */,
+				45D1D8882CB7966D008F752A /* GoogleSignIn in Frameworks */,
+				45D1D88C2CB7FA20008F752A /* FirebaseAuth in Frameworks */,
+				45D1D8962CB802F3008F752A /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +90,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		454052C82CB7872A00203247 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		45C56C412CB6A42000D09C73 = {
 			isa = PBXGroup;
 			children = (
@@ -78,6 +104,7 @@
 				45C56C5D2CB6A42100D09C73 /* moai-baby-name-generatorTests */,
 				45C56C672CB6A42100D09C73 /* moai-baby-name-generatorUITests */,
 				45C56C4B2CB6A42000D09C73 /* Products */,
+				454052C82CB7872A00203247 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -94,9 +121,11 @@
 		45C56C4C2CB6A42000D09C73 /* moai-baby-name-generator */ = {
 			isa = PBXGroup;
 			children = (
+				45D1D8892CB79676008F752A /* Info.plist */,
 				45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */,
 				45C56C4F2CB6A42000D09C73 /* ContentView.swift */,
 				45C56C512CB6A42100D09C73 /* Assets.xcassets */,
+				45D1D8932CB7FF7B008F752A /* GoogleService-Info.plist */,
 				45C56C532CB6A42100D09C73 /* Preview Content */,
 			);
 			path = "moai-baby-name-generator";
@@ -106,6 +135,7 @@
 			isa = PBXGroup;
 			children = (
 				45C56C542CB6A42100D09C73 /* Preview Assets.xcassets */,
+				454052C52CB6EFF700203247 /* questions.json */,
 			);
 			path = "Preview Content";
 			sourceTree = "<group>";
@@ -143,6 +173,15 @@
 			dependencies = (
 			);
 			name = "moai-baby-name-generator";
+			packageProductDependencies = (
+				45D1D8822CB791AC008F752A /* SwiftOpenAI */,
+				45D1D8852CB7966B008F752A /* GoogleSignInSwift */,
+				45D1D8872CB7966D008F752A /* GoogleSignIn */,
+				45D1D88B2CB7FA20008F752A /* FirebaseAuth */,
+				45D1D88D2CB7FA4D008F752A /* FirebaseCore */,
+				45D1D88F2CB7FAF3008F752A /* FirebaseAnalytics */,
+				45D1D8952CB802F3008F752A /* FirebaseFirestore */,
+			);
 			productName = "moai-baby-name-generator";
 			productReference = 45C56C4A2CB6A42000D09C73 /* moai-baby-name-generator.app */;
 			productType = "com.apple.product-type.application";
@@ -208,13 +247,21 @@
 			};
 			buildConfigurationList = 45C56C452CB6A42000D09C73 /* Build configuration list for PBXProject "moai-baby-name-generator" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
+			developmentRegion = "zh-Hant";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hant",
 			);
 			mainGroup = 45C56C412CB6A42000D09C73;
+			packageReferences = (
+				454052C72CB7803B00203247 /* XCRemoteSwiftPackageReference "OpenAI" */,
+				454052CB2CB78BDE00203247 /* XCRemoteSwiftPackageReference "OpenAISwift" */,
+				45D1D8812CB79187008F752A /* XCRemoteSwiftPackageReference "SwiftOpenAI" */,
+				45D1D8842CB795E2008F752A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = 45C56C4B2CB6A42000D09C73 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -231,6 +278,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				454052C62CB6EFF700203247 /* questions.json in Resources */,
+				45D1D8942CB7FF7B008F752A /* GoogleService-Info.plist in Resources */,
 				45C56C552CB6A42100D09C73 /* Preview Assets.xcassets in Resources */,
 				45C56C522CB6A42100D09C73 /* Assets.xcassets in Resources */,
 			);
@@ -347,7 +396,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -404,7 +453,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -422,9 +471,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"moai-baby-name-generator/Preview Content\"";
-				DEVELOPMENT_TEAM = Z27MRS4X9A;
+				DEVELOPMENT_TEAM = VWTUF2WB62;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "moai-baby-name-generator/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -435,7 +485,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "homee.moai-baby-name-generator";
+				PRODUCT_BUNDLE_IDENTIFIER = "moai.moai-baby-name";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -451,9 +501,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"moai-baby-name-generator/Preview Content\"";
-				DEVELOPMENT_TEAM = Z27MRS4X9A;
+				DEVELOPMENT_TEAM = VWTUF2WB62;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "moai-baby-name-generator/Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -464,7 +515,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "homee.moai-baby-name-generator";
+				PRODUCT_BUNDLE_IDENTIFIER = "moai.moai-baby-name";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -483,7 +534,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "homee.moai-baby-name-generatorTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "moai.moai-baby-name-generatorTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -503,7 +554,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "homee.moai-baby-name-generatorTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "moai.moai-baby-name-generatorTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -516,12 +567,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Z27MRS4X9A;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "homee.moai-baby-name-generatorUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = "moai.moai-baby-name-generatorUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -534,12 +586,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Z27MRS4X9A;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "homee.moai-baby-name-generatorUITests";
+				PRODUCT_BUNDLE_IDENTIFIER = "moai.moai-baby-name-generatorUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
@@ -588,6 +641,87 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		454052C72CB7803B00203247 /* XCRemoteSwiftPackageReference "OpenAI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MacPaw/OpenAI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.0;
+			};
+		};
+		454052CB2CB78BDE00203247 /* XCRemoteSwiftPackageReference "OpenAISwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/adamrushy/OpenAISwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.1;
+			};
+		};
+		45D1D8812CB79187008F752A /* XCRemoteSwiftPackageReference "SwiftOpenAI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jamesrochabrun/SwiftOpenAI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+		45D1D8842CB795E2008F752A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+		45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		45D1D8822CB791AC008F752A /* SwiftOpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D8812CB79187008F752A /* XCRemoteSwiftPackageReference "SwiftOpenAI" */;
+			productName = SwiftOpenAI;
+		};
+		45D1D8852CB7966B008F752A /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D8842CB795E2008F752A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		45D1D8872CB7966D008F752A /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D8842CB795E2008F752A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		45D1D88B2CB7FA20008F752A /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		45D1D88D2CB7FA4D008F752A /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		45D1D88F2CB7FAF3008F752A /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		45D1D8952CB802F3008F752A /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 45C56C422CB6A42000D09C73 /* Project object */;
 }

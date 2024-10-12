@@ -120,6 +120,20 @@ struct LoginView: View {
                 )
             }
             
+            Button(action: guestLogin) {
+                Text("訪客模式")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.customAccent)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(.customAccent, lineWidth: 1)
+                    )
+            }
+            
             HStack {
                 Text("還沒有帳號？")
                     .foregroundColor(.customText)
@@ -186,7 +200,7 @@ struct LoginView: View {
                     .cornerRadius(10)
             }
             
-            Button("返回登入") {
+            Button("返回入") {
                 isForgotPassword = false
             }
             .foregroundColor(.customAccent)
@@ -270,6 +284,12 @@ struct LoginView: View {
                 }
             }
         }
+    }
+
+    private func guestLogin() {
+        // Implement guest login logic here
+        // For now, we'll just set isLoggedIn to true
+        isLoggedIn = true
     }
 }
 
@@ -622,10 +642,8 @@ struct DialogView: View {
     }
     
     private func callOpenAIAPI(with prompt: String) async throws -> (String, String, [String]) {
-        // Read API key from .env file
-        guard let apiKey = readAPIKey() else {
-            throw NSError(domain: "EnvironmentError", code: 0, userInfo: [NSLocalizedDescriptionKey: "OpenAI API key not found in .env file"])
-        }
+        // Use the Config struct to get the API key
+        let apiKey = APIConfig.openAIKey
         
         let service = OpenAIServiceFactory.service(apiKey: apiKey)
         
@@ -666,27 +684,23 @@ struct DialogView: View {
 
         return (name, analysis, wuxing)
     }
+}
 
-    private func readAPIKey() -> String? {
-        guard let path = Bundle.main.path(forResource: ".env", ofType: nil) else {
-            print("Failed to find .env file")
-            return nil
-        }
-        
-        do {
-            let contents = try String(contentsOfFile: path, encoding: .utf8)
-            let lines = contents.split(separator: "\n")
-            for line in lines {
-                let parts = line.split(separator: "=", maxSplits: 1)
-                if parts.count == 2 && parts[0].trimmingCharacters(in: .whitespaces) == "OPENAI_API_KEY" {
-                    return parts[1].trimmingCharacters(in: .whitespaces)
-                }
+// Add this struct at the end of the file
+struct Config {
+    static var openAIKey: String {
+        get {
+            guard let filePath = Bundle.main.path(forResource: "Config", ofType: "plist") else {
+                fatalError("Couldn't find file 'Config.plist'.")
             }
-            print("API key not found in .env file")
-            return nil
-        } catch {
-            print("Failed to read .env file: \(error)")
-            return nil
+            
+            let plist = NSDictionary(contentsOfFile: filePath)
+            
+            guard let value = plist?.object(forKey: "OpenAI_API_Key") as? String else {
+                fatalError("Couldn't find key 'OpenAI_API_Key' in 'Config.plist'.")
+            }
+            
+            return value
         }
     }
 }

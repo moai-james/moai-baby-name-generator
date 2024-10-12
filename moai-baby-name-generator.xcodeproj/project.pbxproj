@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		454052C62CB6EFF700203247 /* questions.json in Resources */ = {isa = PBXBuildFile; fileRef = 454052C52CB6EFF700203247 /* questions.json */; };
+		458407852CBA6A7500F9C299 /* Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 458407842CBA6A7500F9C299 /* Config.plist */; };
+		458407872CBA6AC100F9C299 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458407862CBA6AC100F9C299 /* Config.swift */; };
 		45C56C4E2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */; };
 		45C56C502CB6A42000D09C73 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C4F2CB6A42000D09C73 /* ContentView.swift */; };
 		45C56C522CB6A42100D09C73 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 45C56C512CB6A42100D09C73 /* Assets.xcassets */; };
@@ -44,6 +46,8 @@
 
 /* Begin PBXFileReference section */
 		454052C52CB6EFF700203247 /* questions.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = questions.json; path = "moai-baby-name-generator/questions.json"; sourceTree = SOURCE_ROOT; };
+		458407842CBA6A7500F9C299 /* Config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Config.plist; sourceTree = "<group>"; };
+		458407862CBA6AC100F9C299 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		45C56C4A2CB6A42000D09C73 /* moai-baby-name-generator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "moai-baby-name-generator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = moai_baby_name_generatorApp.swift; sourceTree = "<group>"; };
 		45C56C4F2CB6A42000D09C73 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -124,6 +128,8 @@
 				45D1D8892CB79676008F752A /* Info.plist */,
 				45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */,
 				45C56C4F2CB6A42000D09C73 /* ContentView.swift */,
+				458407842CBA6A7500F9C299 /* Config.plist */,
+				458407862CBA6AC100F9C299 /* Config.swift */,
 				45C56C512CB6A42100D09C73 /* Assets.xcassets */,
 				45D1D8932CB7FF7B008F752A /* GoogleService-Info.plist */,
 				45C56C532CB6A42100D09C73 /* Preview Content */,
@@ -281,6 +287,7 @@
 				454052C62CB6EFF700203247 /* questions.json in Resources */,
 				45D1D8942CB7FF7B008F752A /* GoogleService-Info.plist in Resources */,
 				45C56C552CB6A42100D09C73 /* Preview Assets.xcassets in Resources */,
+				458407852CBA6A7500F9C299 /* Config.plist in Resources */,
 				45C56C522CB6A42100D09C73 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -308,6 +315,7 @@
 			files = (
 				45C56C502CB6A42000D09C73 /* ContentView.swift in Sources */,
 				45C56C4E2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift in Sources */,
+				458407872CBA6AC100F9C299 /* Config.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

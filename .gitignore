@@ -1,7 +1,7 @@
 #swift gitignore
 .DS_Store
 .swiftpm
-moai-baby-name-generator/Config.plist
+**/Config.plist
 
 # Xcode
 #

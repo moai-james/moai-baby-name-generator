@@ -82,10 +82,10 @@ struct LoginView: View {
     var loginView: some View {
         VStack(spacing: 20) {
             TextField("電子郵件", text: $email)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .textFieldStyle(CustomTextFieldStyle())
             
             SecureField("密碼", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .textFieldStyle(CustomTextFieldStyle())
             
             Button(action: signInWithEmailPassword) {
                 Text("登入")
@@ -93,7 +93,7 @@ struct LoginView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(.customAccent)
+                    .background(Color.customAccent)
                     .cornerRadius(10)
             }
             
@@ -112,11 +112,11 @@ struct LoginView: View {
                 .foregroundColor(.customText)
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color.white)
+                .background(Color.customSecondary)
                 .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(.customAccent, lineWidth: 1)
+                        .stroke(Color.customAccent, lineWidth: 1)
                 )
             }
             
@@ -126,11 +126,11 @@ struct LoginView: View {
                     .foregroundColor(.customAccent)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.white)
+                    .background(Color.customSecondary)
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(.customAccent, lineWidth: 1)
+                            .stroke(Color.customAccent, lineWidth: 1)
                     )
             }
             
@@ -187,7 +187,7 @@ struct LoginView: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.customText)
             
-            TextField("電子郵件", text: $email)
+            TextField("電郵件", text: $email)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
             
             Button(action: { /* Implement password reset logic */ }) {
@@ -293,11 +293,30 @@ struct LoginView: View {
     }
 }
 
+struct CustomTextFieldStyle: TextFieldStyle {
+    @Environment(\.colorScheme) var colorScheme
+    
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(colorScheme == .dark ? Color.black.opacity(0.2) : Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.customAccent.opacity(0.5), lineWidth: 1)
+                    )
+            )
+            .foregroundColor(.customText)
+    }
+}
+
 struct MainView: View {
     @Binding var navigationPath: NavigationPath
     @State private var selectedTab = 0
     @Binding var isLoggedIn: Bool
     @Environment(\.colorScheme) var colorScheme
+    @AppStorage("isDarkMode") private var isDarkMode = false
 
     var body: some View {
         ZStack {
@@ -321,6 +340,17 @@ struct MainView: View {
                             .font(.system(size: 32, weight: .bold))
                             .foregroundColor(.customText)
                             .padding(.top, 20)
+                        
+                        Spacer()
+                        
+                        Toggle(isOn: $isDarkMode) {
+                            Text("深色模式")
+                                .foregroundColor(.customText)
+                        }
+                        .padding()
+                        .background(Color.customSecondary)
+                        .cornerRadius(10)
+                        .padding(.horizontal)
                         
                         Spacer()
                         
@@ -372,6 +402,7 @@ struct MainView: View {
         .navigationDestination(for: FormData.self) { formData in
             DialogView(navigationPath: $navigationPath, formData: formData)
         }
+        .preferredColorScheme(isDarkMode ? .dark : .light)
     }
     
     var homeView: some View {
@@ -762,7 +793,7 @@ struct NameAnalysisView: View {
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.white)
+                            .fill(Color.customSecondary)
                             .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
                     )
                 }
@@ -784,7 +815,7 @@ struct NameAnalysisView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 15)
-                .fill(Color.white)
+                .fill(Color.customSecondary)
                 .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
         )
     }
@@ -812,7 +843,7 @@ struct NameAnalysisView: View {
                     .foregroundColor(.customAccent)
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.white)
+                    .background(Color.customSecondary)
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
@@ -865,7 +896,7 @@ struct NameAnalysisView: View {
         case "木": return .green
         case "水": return .blue
         case "火": return .red
-        case "土": return .brown
+        case "土": return .orange
         default: return .gray
         }
     }
@@ -988,7 +1019,7 @@ struct FavoritesListView: View {
         case "木": return .green
         case "水": return .blue
         case "火": return .red
-        case "土": return .brown
+        case "土": return .orange
         default: return .gray
         }
     }

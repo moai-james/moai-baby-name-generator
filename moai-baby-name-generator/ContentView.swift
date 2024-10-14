@@ -486,7 +486,7 @@ struct FormView: View {
                         TextField("", text: $surname)
                     }
                     TextField("指定中間字", text: $middleName)
-                    Picker("單雙名", selection: $numberOfNames) {
+                    Picker("單名", selection: $numberOfNames) {
                         Text("單名").tag(1)
                         Text("雙名").tag(2)
                     }
@@ -547,6 +547,7 @@ struct DialogView: View {
     @State private var nameAnalysis: String?
     @State private var wuxing: [String]?
     @Environment(\.colorScheme) var colorScheme
+    @State private var errorMessage: String?
     
     var body: some View {
         ZStack {
@@ -557,6 +558,30 @@ struct DialogView: View {
                 ProgressView("生成名字中...")
                     .progressViewStyle(CircularProgressViewStyle(tint: .customText))
                     .scaleEffect(1.5)
+            } else if let errorMessage = errorMessage {
+                VStack {
+                    Text("生成名字失敗")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.red)
+                        .padding()
+                    
+                    Text(errorMessage)
+                        .font(.system(size: 18))
+                        .foregroundColor(.customText)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                    
+                    Button("重試") {
+                        self.errorMessage = nil
+                        generateName()
+                    }
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(.customAccent)
+                    .cornerRadius(10)
+                }
+                .padding()
             } else if let generatedName = generatedName, let nameAnalysis = nameAnalysis, let wuxing = wuxing {
                 NameAnalysisView(name: generatedName, analysis: nameAnalysis, wuxing: wuxing, navigationPath: $navigationPath)
             } else {
@@ -625,10 +650,11 @@ struct DialogView: View {
     
     private func generateName() {
         isGeneratingName = true
-        
+        errorMessage = nil
+
         // Prepare the prompt for the AI model
         let prompt = preparePrompt()
-        
+
         // Call the OpenAI API to generate the name
         Task {
             do {
@@ -643,6 +669,7 @@ struct DialogView: View {
                 print("Error generating name: \(error)")
                 DispatchQueue.main.async {
                     self.isGeneratingName = false
+                    self.errorMessage = "生成名字時發生錯誤。請稍後再試。"
                 }
             }
         }
@@ -656,19 +683,12 @@ struct DialogView: View {
         根據以下資訊為嬰兒生成一個中文名字：
         \(formData)
         問題回答：\(answersString)
-        請生成一個適合的中文名字，並提供簡短的分析解釋這個名字的含義和為什麼它適合這個嬰兒。同時，請為名字中的每個字分析其對應的五行屬性（金木水火土）。
-        回覆格式：
-        名字：[生成的名字]
-        分析：[名字分析]
-        五行：[每個字的五行屬性，用逗號分隔，五行屬性的數目必須與姓名字數相同。例1：金，木，水; 例2：火，土，金]
-        回覆範例：
-        名字：蕭勇
-        分析：這個名字包含了「蕭」姓氏，表達了勇往直前的精神。個中字義，「蕭」通「逍」，意味着英俊不凡、心靈自在。而「勇」代表勇敢、堅強，象徵著對知識好奇心和對藝術文化的熱愛。這個選擇的名字也象徵着能成為朋友中的有力支持者，值得信賴。整體名字給人一種積極向上、充滿活力與樂觀的感覺。
-        五行：木，金
-
-        名字：蕭藝璇
-        分析：這個名字選用了「蕭」作為姓氏，而「藝」代表藝術、文化，「璇」則象徵著璀璨、閃耀。整個名字暗示著這位嬰兒將擁有堅持不懈的毅力，對知識的好奇心，成為受人信賴的朋友，並展現勇往直前的精神，同時有對藝術與文化的熱愛。這個名字給人一種具有多方面才華和個性的印象。
-        五行：木、金、水
+        請生成一個適合的中文姓名，必須符合指定的單名或雙名要求。如果指定了中間字，請將其納入名字中。
+        請提供簡短的分析解釋這個名字的含義和為什麼它適合這個嬰兒。同時，請為名字中的每個字分析其對應的五行屬性（金木水火土）。
+        請嚴格按照以下格式回覆：
+        姓名：[生成的姓名]
+        分析：[姓名分析]
+        五行：[每個字的五行屬性，用逗號分隔，五行屬性的數目必須與姓名字數相同。例1：金，木，水; 例2：火，土，金，水]
         """
     }
     
@@ -693,25 +713,43 @@ struct DialogView: View {
         guard let responseContent = completionObject.choices.first?.message.content else {
             throw NSError(domain: "OpenAIError", code: 0, userInfo: [NSLocalizedDescriptionKey: "No response from OpenAI"])
         }
-        
+
         // Print the full response for debugging
         print("OpenAI API Response:")
         print(responseContent)
-        
-        let components = responseContent.split(separator: "\n")
-        guard components.count == 3 else {
-            throw NSError(domain: "OpenAIError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unexpected response format"])
+
+        // Split the response into lines
+        let lines = responseContent.split(separator: "\n")
+
+        // Extract name, analysis, and wuxing
+        var name = ""
+        var analysis = ""
+        var wuxing: [String] = []
+
+        for line in lines {
+            if line.starts(with: "姓名：") {
+                name = String(line.dropFirst(3))
+            } else if line.starts(with: "分析：") {
+                analysis = String(line.dropFirst(3))
+            } else if line.starts(with: "五行：") {
+                let wuxingString = String(line.dropFirst(3))
+                wuxing = wuxingString.split { $0 == "，" || $0 == "、" || $0 == "," }.map(String.init)
+            }
         }
 
-        let name = String(components[0].dropFirst(3)) // Remove "名字：" prefix
-        print("name:", name)
-        let analysis = String(components[1].dropFirst(3)) // Remove "分析：" prefix
-        print("analysis:", analysis)
-        
-        // Updated wuxing parsing
-        let wuxingString = String(components[2].dropFirst(3)) // Remove "五行：" prefix
-        let wuxing = wuxingString.split { $0 == "，" || $0 == "、" }.map(String.init)
-        print("wuxing:", wuxing)
+        // Validate extracted data
+        guard !name.isEmpty, !analysis.isEmpty, !wuxing.isEmpty else {
+            throw NSError(domain: "OpenAIError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Incomplete response from OpenAI"])
+        }
+
+        // Ensure wuxing count matches name character count, considering compound surnames
+        let nameCharacters = name.map { String($0) }
+        let surnameCharCount = formData.surname.count
+        let expectedWuxingCount = nameCharacters.count - surnameCharCount + 1
+
+        if wuxing.count != expectedWuxingCount {
+            wuxing = Array(repeating: "未知", count: expectedWuxingCount)
+        }
 
         return (name, analysis, wuxing)
     }
@@ -774,21 +812,36 @@ struct NameAnalysisView: View {
                 .foregroundColor(.customText)
             
             HStack(spacing: 20) {
-                ForEach(Array(name.enumerated()), id: \.offset) { index, character in
+                let nameCharacters = name.map { String($0) }
+                let surnameCharCount = nameCharacters.count - wuxing.count + 1
+
+                // Display surname
+                VStack {
+                    Text(nameCharacters[0..<surnameCharCount].joined())
+                        .font(.system(size: 48, weight: .bold))
+                        .foregroundColor(.customText)
+                    
+                    Image(systemName: wuxingIcon(for: wuxing[0]))
+                        .font(.system(size: 24))
+                        .foregroundColor(wuxingColor(for: wuxing[0]))
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color.customSecondary)
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                )
+
+                // Display given name characters
+                ForEach(Array(zip(nameCharacters[surnameCharCount...], wuxing[1...])), id: \.0) { character, element in
                     VStack {
-                        Text(String(character))
+                        Text(character)
                             .font(.system(size: 48, weight: .bold))
                             .foregroundColor(.customText)
                         
-                        if index < wuxing.count {
-                            Image(systemName: wuxingIcon(for: wuxing[index]))
-                                .font(.system(size: 24))
-                                .foregroundColor(wuxingColor(for: wuxing[index]))
-                        } else {
-                            Text("No wuxing")
-                                .font(.system(size: 12))
-                                .foregroundColor(.red)
-                        }
+                        Image(systemName: wuxingIcon(for: element))
+                            .font(.system(size: 24))
+                            .foregroundColor(wuxingColor(for: element))
                     }
                     .padding()
                     .background(

@@ -7,16 +7,33 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4522E09D2CBBCC1D003511A5 /* SwiftOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E09C2CBBCC1D003511A5 /* SwiftOpenAI */; };
+		4520725F2CFCA8880097D561 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4520725E2CFCA8880097D561 /* GoogleService-Info.plist */; };
 		4522E09F2CBBCC22003511A5 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E09E2CBBCC22003511A5 /* GoogleSignInSwift */; };
 		4522E0A12CBBCC26003511A5 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E0A02CBBCC26003511A5 /* GoogleSignIn */; };
-		4522E0A32CBBCC2D003511A5 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E0A22CBBCC2D003511A5 /* FirebaseAnalytics */; };
 		4522E0A52CBBCC35003511A5 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E0A42CBBCC35003511A5 /* FirebaseAuth */; };
 		4522E0A72CBBCC44003511A5 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E0A62CBBCC44003511A5 /* FirebaseFirestore */; };
 		4522E0A92CBBCC52003511A5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E0A82CBBCC52003511A5 /* FirebaseCore */; };
 		454052C62CB6EFF700203247 /* questions.json in Resources */ = {isa = PBXBuildFile; fileRef = 454052C52CB6EFF700203247 /* questions.json */; };
+		454C11902CCA0882009FCF4F /* splash_animation.gif in Resources */ = {isa = PBXBuildFile; fileRef = 454C118F2CCA0882009FCF4F /* splash_animation.gif */; };
+		4576EEC82CD276330034D68F /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 4576EEC72CD276330034D68F /* GoogleMobileAds */; };
+		457BBE0F2CD609B50013E275 /* sancai.json in Resources */ = {isa = PBXBuildFile; fileRef = 457BBE0E2CD609B50013E275 /* sancai.json */; };
+		457BBE112CD615CD0013E275 /* characters.json in Resources */ = {isa = PBXBuildFile; fileRef = 457BBE102CD615CD0013E275 /* characters.json */; };
+		457BBE132CD61EFF0013E275 /* CharacterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 457BBE122CD61EFF0013E275 /* CharacterManager.swift */; };
+		457BBE152CD620F20013E275 /* src.txt in Resources */ = {isa = PBXBuildFile; fileRef = 457BBE142CD620F20013E275 /* src.txt */; };
+		457BBE172CD6649B0013E275 /* SwiftOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 457BBE162CD6649B0013E275 /* SwiftOpenAI */; };
+		45830FA32CE219CC00753CAE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FA22CE219CC00753CAE /* FirebaseAnalytics */; };
+		45830FA52CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FA42CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion */; };
+		45830FA72CE219CC00753CAE /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FA62CE219CC00753CAE /* FirebaseAnalyticsWithoutAdIdSupport */; };
+		45830FA92CE219CC00753CAE /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FA82CE219CC00753CAE /* FirebaseAppCheck */; };
+		45830FAB2CE219CC00753CAE /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FAA2CE219CC00753CAE /* FirebaseAppDistribution-Beta */; };
 		458407852CBA6A7500F9C299 /* Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 458407842CBA6A7500F9C299 /* Config.plist */; };
 		458407872CBA6AC100F9C299 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458407862CBA6AC100F9C299 /* Config.swift */; };
+		458DCFE42CECD44D00FC9C57 /* ForgotPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458DCFE32CECD44C00FC9C57 /* ForgotPasswordView.swift */; };
+		458DCFE92CECD7E100FC9C57 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458DCFE82CECD7E100FC9C57 /* AuthenticationManager.swift */; };
+		459DA8582CEE1FDC00CE6EC1 /* AppCheckManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 459DA8572CEE1FD200CE6EC1 /* AppCheckManager.swift */; };
+		459DA85A2CEE458800CE6EC1 /* VerificationCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 459DA8592CEE458800CE6EC1 /* VerificationCodeView.swift */; };
+		45A4B4262CC78E06002640E7 /* NotoSansTC-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45A4B4242CC78E05002640E7 /* NotoSansTC-Black.ttf */; };
+		45A4B4272CC78E06002640E7 /* NotoSansTC-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45A4B4252CC78E06002640E7 /* NotoSansTC-Regular.ttf */; };
 		45C56C4E2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */; };
 		45C56C502CB6A42000D09C73 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C4F2CB6A42000D09C73 /* ContentView.swift */; };
 		45C56C522CB6A42100D09C73 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 45C56C512CB6A42100D09C73 /* Assets.xcassets */; };
@@ -24,7 +41,10 @@
 		45C56C5F2CB6A42100D09C73 /* moai_baby_name_generatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C5E2CB6A42100D09C73 /* moai_baby_name_generatorTests.swift */; };
 		45C56C692CB6A42100D09C73 /* moai_baby_name_generatorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C682CB6A42100D09C73 /* moai_baby_name_generatorUITests.swift */; };
 		45C56C6B2CB6A42100D09C73 /* moai_baby_name_generatorUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C6A2CB6A42100D09C73 /* moai_baby_name_generatorUITestsLaunchTests.swift */; };
-		45D1D8942CB7FF7B008F752A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 45D1D8932CB7FF7B008F752A /* GoogleService-Info.plist */; };
+		45D15D442CDCC0B3000AA2DD /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45D15D432CDCC0B3000AA2DD /* StoreKit.framework */; };
+		45D15D4C2CDCDA67000AA2DD /* products.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 45D15D4B2CDCDA67000AA2DD /* products.storekit */; };
+		45DABAE92CF566F2008C7FBE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 45DABAE82CF566F2008C7FBE /* FirebaseMessaging */; };
+		45E16BBB2CDC87C300B9D57B /* IAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E16BBA2CDC87C000B9D57B /* IAPManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,9 +65,22 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4520725E2CFCA8880097D561 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		454052C52CB6EFF700203247 /* questions.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = questions.json; path = "moai-baby-name-generator/questions.json"; sourceTree = SOURCE_ROOT; };
+		454C118F2CCA0882009FCF4F /* splash_animation.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = splash_animation.gif; path = Assets.xcassets/splash_animation.dataset/splash_animation.gif; sourceTree = "<group>"; };
+		457BBE0E2CD609B50013E275 /* sancai.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = sancai.json; sourceTree = "<group>"; };
+		457BBE102CD615CD0013E275 /* characters.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = characters.json; sourceTree = "<group>"; };
+		457BBE122CD61EFF0013E275 /* CharacterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterManager.swift; sourceTree = "<group>"; };
+		457BBE142CD620F20013E275 /* src.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = src.txt; sourceTree = "<group>"; };
+		45830FA12CDF9C7E00753CAE /* moai-baby-name-generator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "moai-baby-name-generator.entitlements"; sourceTree = "<group>"; };
 		458407842CBA6A7500F9C299 /* Config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Config.plist; sourceTree = "<group>"; };
 		458407862CBA6AC100F9C299 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		458DCFE32CECD44C00FC9C57 /* ForgotPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordView.swift; sourceTree = "<group>"; };
+		458DCFE82CECD7E100FC9C57 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
+		459DA8572CEE1FD200CE6EC1 /* AppCheckManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCheckManager.swift; sourceTree = "<group>"; };
+		459DA8592CEE458800CE6EC1 /* VerificationCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationCodeView.swift; sourceTree = "<group>"; };
+		45A4B4242CC78E05002640E7 /* NotoSansTC-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSansTC-Black.ttf"; sourceTree = "<group>"; };
+		45A4B4252CC78E06002640E7 /* NotoSansTC-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSansTC-Regular.ttf"; sourceTree = "<group>"; };
 		45C56C4A2CB6A42000D09C73 /* moai-baby-name-generator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "moai-baby-name-generator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = moai_baby_name_generatorApp.swift; sourceTree = "<group>"; };
 		45C56C4F2CB6A42000D09C73 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -58,8 +91,10 @@
 		45C56C642CB6A42100D09C73 /* moai-baby-name-generatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "moai-baby-name-generatorUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		45C56C682CB6A42100D09C73 /* moai_baby_name_generatorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = moai_baby_name_generatorUITests.swift; sourceTree = "<group>"; };
 		45C56C6A2CB6A42100D09C73 /* moai_baby_name_generatorUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = moai_baby_name_generatorUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		45D15D432CDCC0B3000AA2DD /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		45D15D4B2CDCDA67000AA2DD /* products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = products.storekit; sourceTree = "<group>"; };
 		45D1D8892CB79676008F752A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		45D1D8932CB7FF7B008F752A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		45E16BBA2CDC87C000B9D57B /* IAPManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,13 +102,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4522E09D2CBBCC1D003511A5 /* SwiftOpenAI in Frameworks */,
+				45D15D442CDCC0B3000AA2DD /* StoreKit.framework in Frameworks */,
 				4522E0A52CBBCC35003511A5 /* FirebaseAuth in Frameworks */,
+				45DABAE92CF566F2008C7FBE /* FirebaseMessaging in Frameworks */,
 				4522E09F2CBBCC22003511A5 /* GoogleSignInSwift in Frameworks */,
-				4522E0A32CBBCC2D003511A5 /* FirebaseAnalytics in Frameworks */,
+				45830FAB2CE219CC00753CAE /* FirebaseAppDistribution-Beta in Frameworks */,
+				4576EEC82CD276330034D68F /* GoogleMobileAds in Frameworks */,
+				45830FA92CE219CC00753CAE /* FirebaseAppCheck in Frameworks */,
+				45830FA72CE219CC00753CAE /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
+				457BBE172CD6649B0013E275 /* SwiftOpenAI in Frameworks */,
 				4522E0A92CBBCC52003511A5 /* FirebaseCore in Frameworks */,
 				4522E0A12CBBCC26003511A5 /* GoogleSignIn in Frameworks */,
+				45830FA52CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				4522E0A72CBBCC44003511A5 /* FirebaseFirestore in Frameworks */,
+				45830FA32CE219CC00753CAE /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +139,7 @@
 		454052C82CB7872A00203247 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				45D15D432CDCC0B3000AA2DD /* StoreKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -109,6 +152,7 @@
 				45C56C672CB6A42100D09C73 /* moai-baby-name-generatorUITests */,
 				45C56C4B2CB6A42000D09C73 /* Products */,
 				454052C82CB7872A00203247 /* Frameworks */,
+				6EBADEECACA7531E59A2EC6F /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -125,14 +169,28 @@
 		45C56C4C2CB6A42000D09C73 /* moai-baby-name-generator */ = {
 			isa = PBXGroup;
 			children = (
+				459DA8572CEE1FD200CE6EC1 /* AppCheckManager.swift */,
+				45830FA12CDF9C7E00753CAE /* moai-baby-name-generator.entitlements */,
+				458DCFE32CECD44C00FC9C57 /* ForgotPasswordView.swift */,
+				45E16BBA2CDC87C000B9D57B /* IAPManager.swift */,
 				45D1D8892CB79676008F752A /* Info.plist */,
 				45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */,
 				45C56C4F2CB6A42000D09C73 /* ContentView.swift */,
+				4520725E2CFCA8880097D561 /* GoogleService-Info.plist */,
 				458407842CBA6A7500F9C299 /* Config.plist */,
+				458DCFE82CECD7E100FC9C57 /* AuthenticationManager.swift */,
 				458407862CBA6AC100F9C299 /* Config.swift */,
+				45A4B4242CC78E05002640E7 /* NotoSansTC-Black.ttf */,
+				457BBE142CD620F20013E275 /* src.txt */,
+				459DA8592CEE458800CE6EC1 /* VerificationCodeView.swift */,
+				45A4B4252CC78E06002640E7 /* NotoSansTC-Regular.ttf */,
+				457BBE122CD61EFF0013E275 /* CharacterManager.swift */,
+				454C118F2CCA0882009FCF4F /* splash_animation.gif */,
 				45C56C512CB6A42100D09C73 /* Assets.xcassets */,
-				45D1D8932CB7FF7B008F752A /* GoogleService-Info.plist */,
 				45C56C532CB6A42100D09C73 /* Preview Content */,
+				457BBE0E2CD609B50013E275 /* sancai.json */,
+				457BBE102CD615CD0013E275 /* characters.json */,
+				45D15D4B2CDCDA67000AA2DD /* products.storekit */,
 			);
 			path = "moai-baby-name-generator";
 			sourceTree = "<group>";
@@ -163,6 +221,13 @@
 			path = "moai-baby-name-generatorUITests";
 			sourceTree = "<group>";
 		};
+		6EBADEECACA7531E59A2EC6F /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -180,13 +245,19 @@
 			);
 			name = "moai-baby-name-generator";
 			packageProductDependencies = (
-				4522E09C2CBBCC1D003511A5 /* SwiftOpenAI */,
 				4522E09E2CBBCC22003511A5 /* GoogleSignInSwift */,
 				4522E0A02CBBCC26003511A5 /* GoogleSignIn */,
-				4522E0A22CBBCC2D003511A5 /* FirebaseAnalytics */,
 				4522E0A42CBBCC35003511A5 /* FirebaseAuth */,
 				4522E0A62CBBCC44003511A5 /* FirebaseFirestore */,
 				4522E0A82CBBCC52003511A5 /* FirebaseCore */,
+				4576EEC72CD276330034D68F /* GoogleMobileAds */,
+				457BBE162CD6649B0013E275 /* SwiftOpenAI */,
+				45830FA22CE219CC00753CAE /* FirebaseAnalytics */,
+				45830FA42CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion */,
+				45830FA62CE219CC00753CAE /* FirebaseAnalyticsWithoutAdIdSupport */,
+				45830FA82CE219CC00753CAE /* FirebaseAppCheck */,
+				45830FAA2CE219CC00753CAE /* FirebaseAppDistribution-Beta */,
+				45DABAE82CF566F2008C7FBE /* FirebaseMessaging */,
 			);
 			productName = "moai-baby-name-generator";
 			productReference = 45C56C4A2CB6A42000D09C73 /* moai-baby-name-generator.app */;
@@ -267,6 +338,9 @@
 				45D1D8812CB79187008F752A /* XCRemoteSwiftPackageReference "SwiftOpenAI" */,
 				45D1D8842CB795E2008F752A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				45D817892CCC8D660089A220 /* XCRemoteSwiftPackageReference "Inject" */,
+				4576EEC42CD272D70034D68F /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				45F632952CDB869E005D6CCF /* XCRemoteSwiftPackageReference "swift-format" */,
 			);
 			productRefGroup = 45C56C4B2CB6A42000D09C73 /* Products */;
 			projectDirPath = "";
@@ -285,8 +359,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				454052C62CB6EFF700203247 /* questions.json in Resources */,
-				45D1D8942CB7FF7B008F752A /* GoogleService-Info.plist in Resources */,
+				457BBE152CD620F20013E275 /* src.txt in Resources */,
+				457BBE0F2CD609B50013E275 /* sancai.json in Resources */,
+				457BBE112CD615CD0013E275 /* characters.json in Resources */,
+				454C11902CCA0882009FCF4F /* splash_animation.gif in Resources */,
+				45A4B4262CC78E06002640E7 /* NotoSansTC-Black.ttf in Resources */,
+				4520725F2CFCA8880097D561 /* GoogleService-Info.plist in Resources */,
 				45C56C552CB6A42100D09C73 /* Preview Assets.xcassets in Resources */,
+				45D15D4C2CDCDA67000AA2DD /* products.storekit in Resources */,
+				45A4B4272CC78E06002640E7 /* NotoSansTC-Regular.ttf in Resources */,
 				458407852CBA6A7500F9C299 /* Config.plist in Resources */,
 				45C56C522CB6A42100D09C73 /* Assets.xcassets in Resources */,
 			);
@@ -314,7 +395,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				45C56C502CB6A42000D09C73 /* ContentView.swift in Sources */,
+				459DA8582CEE1FDC00CE6EC1 /* AppCheckManager.swift in Sources */,
+				45E16BBB2CDC87C300B9D57B /* IAPManager.swift in Sources */,
+				459DA85A2CEE458800CE6EC1 /* VerificationCodeView.swift in Sources */,
+				458DCFE92CECD7E100FC9C57 /* AuthenticationManager.swift in Sources */,
+				457BBE132CD61EFF0013E275 /* CharacterManager.swift in Sources */,
 				45C56C4E2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift in Sources */,
+				458DCFE42CECD44D00FC9C57 /* ForgotPasswordView.swift in Sources */,
 				458407872CBA6AC100F9C299 /* Config.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -476,6 +563,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "moai-baby-name-generator/moai-baby-name-generator.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"moai-baby-name-generator/Preview Content\"";
@@ -483,6 +571,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "moai-baby-name-generator/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "千尋";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -492,12 +582,17 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.02;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "moai.moai-baby-name";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -506,6 +601,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "moai-baby-name-generator/moai-baby-name-generator.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"moai-baby-name-generator/Preview Content\"";
@@ -513,6 +610,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "moai-baby-name-generator/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "千尋";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -522,12 +621,18 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.02;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "moai.moai-baby-name";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -667,12 +772,20 @@
 				minimumVersion = 1.4.1;
 			};
 		};
+		4576EEC42CD272D70034D68F /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.11.0;
+			};
+		};
 		45D1D8812CB79187008F752A /* XCRemoteSwiftPackageReference "SwiftOpenAI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/jamesrochabrun/SwiftOpenAI";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
+				kind = exactVersion;
+				version = 3.9.1;
 			};
 		};
 		45D1D8842CB795E2008F752A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
@@ -691,14 +804,25 @@
 				minimumVersion = 11.3.0;
 			};
 		};
+		45D817892CCC8D660089A220 /* XCRemoteSwiftPackageReference "Inject" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/krzysztofzablocki/Inject.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.2;
+			};
+		};
+		45F632952CDB869E005D6CCF /* XCRemoteSwiftPackageReference "swift-format" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swiftlang/swift-format";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 600.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		4522E09C2CBBCC1D003511A5 /* SwiftOpenAI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45D1D8812CB79187008F752A /* XCRemoteSwiftPackageReference "SwiftOpenAI" */;
-			productName = SwiftOpenAI;
-		};
 		4522E09E2CBBCC22003511A5 /* GoogleSignInSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 45D1D8842CB795E2008F752A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
@@ -708,11 +832,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 45D1D8842CB795E2008F752A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignIn;
-		};
-		4522E0A22CBBCC2D003511A5 /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
 		};
 		4522E0A42CBBCC35003511A5 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -728,6 +847,46 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
+		};
+		4576EEC72CD276330034D68F /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4576EEC42CD272D70034D68F /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+		457BBE162CD6649B0013E275 /* SwiftOpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D8812CB79187008F752A /* XCRemoteSwiftPackageReference "SwiftOpenAI" */;
+			productName = SwiftOpenAI;
+		};
+		45830FA22CE219CC00753CAE /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		45830FA42CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsOnDeviceConversion;
+		};
+		45830FA62CE219CC00753CAE /* FirebaseAnalyticsWithoutAdIdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
+		};
+		45830FA82CE219CC00753CAE /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		45830FAA2CE219CC00753CAE /* FirebaseAppDistribution-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseAppDistribution-Beta";
+		};
+		45DABAE82CF566F2008C7FBE /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

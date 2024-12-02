@@ -1,0 +1,140 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "E90C6D68",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "490",
+      "familyShareable" : false,
+      "internalID" : "6737900984",
+      "localizations" : [
+        {
+          "description" : "購買後可以額外使用100次摩艾寶寶命名產生器，為您的寶寶取個好名字。",
+          "displayName" : "100次命名機會",
+          "locale" : "zh_CN"
+        }
+      ],
+      "productID" : "com.moai.babynamer.100uses",
+      "referenceName" : "100次使用次數",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "150",
+      "familyShareable" : false,
+      "internalID" : "6737900884",
+      "localizations" : [
+        {
+          "description" : "購買後可以額外使用20次摩艾寶寶命名產生器，為您的寶寶取個好名字。",
+          "displayName" : "20次命名機會",
+          "locale" : "zh_CN"
+        }
+      ],
+      "productID" : "com.moai.babynamer.20uses",
+      "referenceName" : "20次使用次數",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "50",
+      "familyShareable" : false,
+      "internalID" : "6737875759",
+      "localizations" : [
+        {
+          "description" : "購買後可以額外使用五次摩艾寶寶命名產生器，為您的寶寶取個好名字。",
+          "displayName" : "五次命名機會",
+          "locale" : "zh_CN"
+        }
+      ],
+      "productID" : "com.moai.babynamer.uses",
+      "referenceName" : "5次使用次數",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "690",
+      "familyShareable" : false,
+      "internalID" : "6737901790",
+      "localizations" : [
+        {
+          "description" : "購買後每日可以獲得五次摩艾寶寶命名，為您的寶寶取個好名字。",
+          "displayName" : "每日5次命名機會",
+          "locale" : "zh_CN"
+        }
+      ],
+      "productID" : "com.moai.babynamer.uses.daily",
+      "referenceName" : "每日5次使用次數",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6736732768",
+    "_developerTeamID" : "VWTUF2WB62",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 752673044.56610894,
+    "_locale" : "zh_TW",
+    "_storefront" : "TWN",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

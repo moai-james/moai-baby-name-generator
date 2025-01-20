@@ -44,6 +44,8 @@ class IAPManager: NSObject, ObservableObject {
     @Published var isLoading = false
     @Published var isPurchasing = false
     @Published var purchaseError: String?
+    @Published var showPurchaseSuccess = false
+    @Published var purchasedUses: Int = 0
     
     private override init() {
         super.init()
@@ -90,32 +92,52 @@ class IAPManager: NSObject, ObservableObject {
         Task {
             if let product = IAPProduct.allCases.first(where: { $0.id == productID }) {
                 do {
-                    // 更新使用次數
-                    UsageManager.shared.remainingUses += product.uses
+                    // 1. 先在外部宣告變數
+                    var previousUses: Int = 0
                     
-                    // 記錄購買歷史
+                    // 2. 在主線程更新本地使用次數
+                    await MainActor.run {
+                        previousUses = UsageManager.shared.remainingUses
+                        UsageManager.shared.remainingUses += product.uses
+                    }
+                    
+                    // 3. 嘗試更新雲端資料，最多重試 3 次
+                    var retryCount = 0
+                    while retryCount < 3 {
+                        do {
+                            try await UsageManager.shared.updateCloudData()
+                            break
+                        } catch {
+                            retryCount += 1
+                            if retryCount == 3 {
+                                throw error
+                            }
+                            try await Task.sleep(nanoseconds: 1_000_000_000)
+                        }
+                    }
+                    
                     if let userId = Auth.auth().currentUser?.uid {
                         try await Firestore.firestore().collection("purchases").addDocument(data: [
                             "userId": userId,
                             "productId": productID,
                             "uses": product.uses,
-                            "timestamp": FieldValue.serverTimestamp()
+                            "timestamp": Date()
                         ])
                     }
                     
-                    // 完成交易
-                    SKPaymentQueue.default().finishTransaction(transaction)
-                    
-                    // 更新 UI 狀態
                     await MainActor.run {
+                        SKPaymentQueue.default().finishTransaction(transaction)
                         self.isPurchasing = false
                         self.purchaseError = nil
+                        self.purchasedUses = product.uses
+                        self.showPurchaseSuccess = true
                     }
                 } catch {
-                    print("❌ [IAP] 處理購買時發生錯誤: \(error)")
                     await MainActor.run {
                         self.purchaseError = "購買處理失敗：\(error.localizedDescription)"
+                        self.isPurchasing = false
                     }
+                    print("❌ [IAP] 處理購買時發生錯誤: \(error)")
                 }
             }
         }

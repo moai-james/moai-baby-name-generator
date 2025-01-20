@@ -9,6 +9,12 @@ import Foundation
 import FirebaseCore
 import FirebaseAppCheck
 
+class DeviceCheckProviderFactory: NSObject, AppCheckProviderFactory {
+    func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+        return DeviceCheckProvider(app: app)
+    }
+}
+
 class AppCheckManager {
     static let shared = AppCheckManager()
     
@@ -33,15 +39,9 @@ class AppCheckManager {
         
         #else
         // Production configuration
-        if #available(iOS 14.0, *) {
-            let provider = AppAttestProvider()
-            AppCheck.setAppCheckProviderFactory(provider)
-            print("✅ Using AppAttest Provider for App Check")
-        } else {
-            let provider = DeviceCheckProvider()
-            AppCheck.setAppCheckProviderFactory(provider)
-            print("✅ Using DeviceCheck Provider for App Check")
-        }
+        let provider = DeviceCheckProviderFactory()
+        AppCheck.setAppCheckProviderFactory(provider)
+        print("✅ Using Production App Check Provider")
         #endif
     }
     

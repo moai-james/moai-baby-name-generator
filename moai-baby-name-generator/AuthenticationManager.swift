@@ -1,6 +1,7 @@
 import SwiftUI
 import FirebaseAuth
 import Combine
+import FirebaseFirestore
 
 enum AuthError: Error {
     case signInError(String)
@@ -59,7 +60,7 @@ class AuthenticationManager: ObservableObject {
     }
     
     func enrollMFA(phoneNumber: String) async throws -> String {
-        guard let user = Auth.auth().currentUser else {
+        guard Auth.auth().currentUser != nil else {
             throw AuthError.signInError("No user logged in")
         }
         
@@ -114,6 +115,30 @@ class AuthenticationManager: ObservableObject {
                 }
             }
         }
+    }
+    
+    func checkPhoneNumberExists(_ phoneNumber: String) async throws -> Bool {
+        guard let user = Auth.auth().currentUser else {
+            print("❌ [Auth] 檢查手機號碼時發現用戶未登入")
+            throw AuthError.signInError("No user logged in")
+        }
+        
+        print("📱 [Auth] 開始檢查手機號碼: \(phoneNumber)")
+        
+        // 獲取用戶的 MFA 信息
+        let enrolledFactors = user.multiFactor.enrolledFactors
+        
+        // 檢查是否已經有相同的手機號碼被註冊為 MFA
+        for factor in enrolledFactors {
+            if let phoneMultiFactor = factor as? PhoneMultiFactorInfo,
+               phoneMultiFactor.phoneNumber == phoneNumber {
+                print("✅ [Auth] 手機號碼已被用於 MFA")
+                return true
+            }
+        }
+        
+        print("✅ [Auth] 手機號碼未被用於 MFA")
+        return false
     }
     
 }

@@ -7,18 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4520725F2CFCA8880097D561 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4520725E2CFCA8880097D561 /* GoogleService-Info.plist */; };
 		4522E09F2CBBCC22003511A5 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E09E2CBBCC22003511A5 /* GoogleSignInSwift */; };
 		4522E0A12CBBCC26003511A5 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E0A02CBBCC26003511A5 /* GoogleSignIn */; };
 		4522E0A52CBBCC35003511A5 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E0A42CBBCC35003511A5 /* FirebaseAuth */; };
 		4522E0A72CBBCC44003511A5 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E0A62CBBCC44003511A5 /* FirebaseFirestore */; };
 		4522E0A92CBBCC52003511A5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4522E0A82CBBCC52003511A5 /* FirebaseCore */; };
+		4526C7AB2D38881E00D224B1 /* PromptManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4526C7AA2D38881E00D224B1 /* PromptManager.swift */; };
+		4526C7B62D393D5400D224B1 /* TaskListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4526C7B52D393D5400D224B1 /* TaskListView.swift */; };
+		4526C7B82D393D5B00D224B1 /* TaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4526C7B72D393D5B00D224B1 /* TaskManager.swift */; };
+		4526C7BC2D393EA200D224B1 /* MissionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4526C7BB2D393EA200D224B1 /* MissionItem.swift */; };
 		454052C62CB6EFF700203247 /* questions.json in Resources */ = {isa = PBXBuildFile; fileRef = 454052C52CB6EFF700203247 /* questions.json */; };
 		454C11902CCA0882009FCF4F /* splash_animation.gif in Resources */ = {isa = PBXBuildFile; fileRef = 454C118F2CCA0882009FCF4F /* splash_animation.gif */; };
+		45696AAD2D06778F0054920B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 45696AAC2D06778F0054920B /* GoogleService-Info.plist */; };
 		4576EEC82CD276330034D68F /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 4576EEC72CD276330034D68F /* GoogleMobileAds */; };
+		457820B92D07EBB700BAD49D /* SwiftyGif in Frameworks */ = {isa = PBXBuildFile; productRef = 457820B82D07EBB700BAD49D /* SwiftyGif */; };
 		457BBE0F2CD609B50013E275 /* sancai.json in Resources */ = {isa = PBXBuildFile; fileRef = 457BBE0E2CD609B50013E275 /* sancai.json */; };
 		457BBE112CD615CD0013E275 /* characters.json in Resources */ = {isa = PBXBuildFile; fileRef = 457BBE102CD615CD0013E275 /* characters.json */; };
-		457BBE132CD61EFF0013E275 /* CharacterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 457BBE122CD61EFF0013E275 /* CharacterManager.swift */; };
 		457BBE152CD620F20013E275 /* src.txt in Resources */ = {isa = PBXBuildFile; fileRef = 457BBE142CD620F20013E275 /* src.txt */; };
 		457BBE172CD6649B0013E275 /* SwiftOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 457BBE162CD6649B0013E275 /* SwiftOpenAI */; };
 		45830FA32CE219CC00753CAE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FA22CE219CC00753CAE /* FirebaseAnalytics */; };
@@ -30,10 +34,17 @@
 		458407872CBA6AC100F9C299 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458407862CBA6AC100F9C299 /* Config.swift */; };
 		458DCFE42CECD44D00FC9C57 /* ForgotPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458DCFE32CECD44C00FC9C57 /* ForgotPasswordView.swift */; };
 		458DCFE92CECD7E100FC9C57 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458DCFE82CECD7E100FC9C57 /* AuthenticationManager.swift */; };
+		459A332D2D355B5F007AEE5F /* StoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 459A332C2D355B5F007AEE5F /* StoreView.swift */; };
 		459DA8582CEE1FDC00CE6EC1 /* AppCheckManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 459DA8572CEE1FD200CE6EC1 /* AppCheckManager.swift */; };
 		459DA85A2CEE458800CE6EC1 /* VerificationCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 459DA8592CEE458800CE6EC1 /* VerificationCodeView.swift */; };
+		45A263BD2D172537005D903D /* loading_animation.gif in Resources */ = {isa = PBXBuildFile; fileRef = 45A263BC2D172537005D903D /* loading_animation.gif */; };
+		45A263BF2D1845F6005D903D /* CharacterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A263BE2D1845F6005D903D /* CharacterManager.swift */; };
+		45A263C12D1845FC005D903D /* ErrorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A263C02D1845FC005D903D /* ErrorManager.swift */; };
 		45A4B4262CC78E06002640E7 /* NotoSansTC-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45A4B4242CC78E05002640E7 /* NotoSansTC-Black.ttf */; };
 		45A4B4272CC78E06002640E7 /* NotoSansTC-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 45A4B4252CC78E06002640E7 /* NotoSansTC-Regular.ttf */; };
+		45AC74BC2D33D29A00C500DE /* SerialNumberInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45AC74BA2D33D29A00C500DE /* SerialNumberInputView.swift */; };
+		45AC74BF2D33DFF300C500DE /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45AC74BD2D33DFF300C500DE /* AuthViewModel.swift */; };
+		45AC74C52D33FC5900C500DE /* NavigationErrorTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45AC74C32D33FC5900C500DE /* NavigationErrorTracker.swift */; };
 		45C56C4E2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */; };
 		45C56C502CB6A42000D09C73 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45C56C4F2CB6A42000D09C73 /* ContentView.swift */; };
 		45C56C522CB6A42100D09C73 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 45C56C512CB6A42100D09C73 /* Assets.xcassets */; };
@@ -65,22 +76,31 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		4520725E2CFCA8880097D561 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		4526C7AA2D38881E00D224B1 /* PromptManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptManager.swift; sourceTree = "<group>"; };
+		4526C7B52D393D5400D224B1 /* TaskListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListView.swift; sourceTree = "<group>"; };
+		4526C7B72D393D5B00D224B1 /* TaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskManager.swift; sourceTree = "<group>"; };
+		4526C7BB2D393EA200D224B1 /* MissionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionItem.swift; sourceTree = "<group>"; };
 		454052C52CB6EFF700203247 /* questions.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = questions.json; path = "moai-baby-name-generator/questions.json"; sourceTree = SOURCE_ROOT; };
 		454C118F2CCA0882009FCF4F /* splash_animation.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = splash_animation.gif; path = Assets.xcassets/splash_animation.dataset/splash_animation.gif; sourceTree = "<group>"; };
+		45696AAC2D06778F0054920B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		457BBE0E2CD609B50013E275 /* sancai.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = sancai.json; sourceTree = "<group>"; };
 		457BBE102CD615CD0013E275 /* characters.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = characters.json; sourceTree = "<group>"; };
-		457BBE122CD61EFF0013E275 /* CharacterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterManager.swift; sourceTree = "<group>"; };
 		457BBE142CD620F20013E275 /* src.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = src.txt; sourceTree = "<group>"; };
-		45830FA12CDF9C7E00753CAE /* moai-baby-name-generator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "moai-baby-name-generator.entitlements"; sourceTree = "<group>"; };
 		458407842CBA6A7500F9C299 /* Config.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Config.plist; sourceTree = "<group>"; };
 		458407862CBA6AC100F9C299 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		458DCFE32CECD44C00FC9C57 /* ForgotPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordView.swift; sourceTree = "<group>"; };
 		458DCFE82CECD7E100FC9C57 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
+		459A332C2D355B5F007AEE5F /* StoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreView.swift; sourceTree = "<group>"; };
 		459DA8572CEE1FD200CE6EC1 /* AppCheckManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCheckManager.swift; sourceTree = "<group>"; };
 		459DA8592CEE458800CE6EC1 /* VerificationCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationCodeView.swift; sourceTree = "<group>"; };
+		45A263BC2D172537005D903D /* loading_animation.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = loading_animation.gif; sourceTree = "<group>"; };
+		45A263BE2D1845F6005D903D /* CharacterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterManager.swift; sourceTree = "<group>"; };
+		45A263C02D1845FC005D903D /* ErrorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorManager.swift; sourceTree = "<group>"; };
 		45A4B4242CC78E05002640E7 /* NotoSansTC-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSansTC-Black.ttf"; sourceTree = "<group>"; };
 		45A4B4252CC78E06002640E7 /* NotoSansTC-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSansTC-Regular.ttf"; sourceTree = "<group>"; };
+		45AC74BA2D33D29A00C500DE /* SerialNumberInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerialNumberInputView.swift; sourceTree = "<group>"; };
+		45AC74BD2D33DFF300C500DE /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		45AC74C32D33FC5900C500DE /* NavigationErrorTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationErrorTracker.swift; sourceTree = "<group>"; };
 		45C56C4A2CB6A42000D09C73 /* moai-baby-name-generator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "moai-baby-name-generator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = moai_baby_name_generatorApp.swift; sourceTree = "<group>"; };
 		45C56C4F2CB6A42000D09C73 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -116,6 +136,7 @@
 				45830FA52CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				4522E0A72CBBCC44003511A5 /* FirebaseFirestore in Frameworks */,
 				45830FA32CE219CC00753CAE /* FirebaseAnalytics in Frameworks */,
+				457820B92D07EBB700BAD49D /* SwiftyGif in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,12 +157,48 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4526C7AE2D38960F00D224B1 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				4526C7BB2D393EA200D224B1 /* MissionItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		454052C82CB7872A00203247 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				45D15D432CDCC0B3000AA2DD /* StoreKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		45AC74BB2D33D29A00C500DE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				45AC74BA2D33D29A00C500DE /* SerialNumberInputView.swift */,
+				4526C7B52D393D5400D224B1 /* TaskListView.swift */,
+				459A332C2D355B5F007AEE5F /* StoreView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		45AC74BE2D33DFF300C500DE /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				45AC74BD2D33DFF300C500DE /* AuthViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		45AC74C42D33FC5900C500DE /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				4526C7B72D393D5B00D224B1 /* TaskManager.swift */,
+				45AC74C32D33FC5900C500DE /* NavigationErrorTracker.swift */,
+				4526C7AA2D38881E00D224B1 /* PromptManager.swift */,
+			);
+			path = Managers;
 			sourceTree = "<group>";
 		};
 		45C56C412CB6A42000D09C73 = {
@@ -169,23 +226,28 @@
 		45C56C4C2CB6A42000D09C73 /* moai-baby-name-generator */ = {
 			isa = PBXGroup;
 			children = (
-				459DA8572CEE1FD200CE6EC1 /* AppCheckManager.swift */,
-				45830FA12CDF9C7E00753CAE /* moai-baby-name-generator.entitlements */,
+				45AC74BB2D33D29A00C500DE /* Views */,
+				45AC74BE2D33DFF300C500DE /* ViewModels */,
 				458DCFE32CECD44C00FC9C57 /* ForgotPasswordView.swift */,
+				45AC74C42D33FC5900C500DE /* Managers */,
+				459DA8572CEE1FD200CE6EC1 /* AppCheckManager.swift */,
+				4526C7AE2D38960F00D224B1 /* Models */,
 				45E16BBA2CDC87C000B9D57B /* IAPManager.swift */,
 				45D1D8892CB79676008F752A /* Info.plist */,
 				45C56C4D2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift */,
 				45C56C4F2CB6A42000D09C73 /* ContentView.swift */,
-				4520725E2CFCA8880097D561 /* GoogleService-Info.plist */,
+				45696AAC2D06778F0054920B /* GoogleService-Info.plist */,
+				45A263BE2D1845F6005D903D /* CharacterManager.swift */,
 				458407842CBA6A7500F9C299 /* Config.plist */,
 				458DCFE82CECD7E100FC9C57 /* AuthenticationManager.swift */,
 				458407862CBA6AC100F9C299 /* Config.swift */,
 				45A4B4242CC78E05002640E7 /* NotoSansTC-Black.ttf */,
+				45A263C02D1845FC005D903D /* ErrorManager.swift */,
 				457BBE142CD620F20013E275 /* src.txt */,
 				459DA8592CEE458800CE6EC1 /* VerificationCodeView.swift */,
 				45A4B4252CC78E06002640E7 /* NotoSansTC-Regular.ttf */,
-				457BBE122CD61EFF0013E275 /* CharacterManager.swift */,
 				454C118F2CCA0882009FCF4F /* splash_animation.gif */,
+				45A263BC2D172537005D903D /* loading_animation.gif */,
 				45C56C512CB6A42100D09C73 /* Assets.xcassets */,
 				45C56C532CB6A42100D09C73 /* Preview Content */,
 				457BBE0E2CD609B50013E275 /* sancai.json */,
@@ -258,6 +320,7 @@
 				45830FA82CE219CC00753CAE /* FirebaseAppCheck */,
 				45830FAA2CE219CC00753CAE /* FirebaseAppDistribution-Beta */,
 				45DABAE82CF566F2008C7FBE /* FirebaseMessaging */,
+				457820B82D07EBB700BAD49D /* SwiftyGif */,
 			);
 			productName = "moai-baby-name-generator";
 			productReference = 45C56C4A2CB6A42000D09C73 /* moai-baby-name-generator.app */;
@@ -341,6 +404,7 @@
 				45D817892CCC8D660089A220 /* XCRemoteSwiftPackageReference "Inject" */,
 				4576EEC42CD272D70034D68F /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 				45F632952CDB869E005D6CCF /* XCRemoteSwiftPackageReference "swift-format" */,
+				457820B72D07EB3B00BAD49D /* XCRemoteSwiftPackageReference "SwiftyGif" */,
 			);
 			productRefGroup = 45C56C4B2CB6A42000D09C73 /* Products */;
 			projectDirPath = "";
@@ -364,7 +428,8 @@
 				457BBE112CD615CD0013E275 /* characters.json in Resources */,
 				454C11902CCA0882009FCF4F /* splash_animation.gif in Resources */,
 				45A4B4262CC78E06002640E7 /* NotoSansTC-Black.ttf in Resources */,
-				4520725F2CFCA8880097D561 /* GoogleService-Info.plist in Resources */,
+				45696AAD2D06778F0054920B /* GoogleService-Info.plist in Resources */,
+				45A263BD2D172537005D903D /* loading_animation.gif in Resources */,
 				45C56C552CB6A42100D09C73 /* Preview Assets.xcassets in Resources */,
 				45D15D4C2CDCDA67000AA2DD /* products.storekit in Resources */,
 				45A4B4272CC78E06002640E7 /* NotoSansTC-Regular.ttf in Resources */,
@@ -398,11 +463,20 @@
 				459DA8582CEE1FDC00CE6EC1 /* AppCheckManager.swift in Sources */,
 				45E16BBB2CDC87C300B9D57B /* IAPManager.swift in Sources */,
 				459DA85A2CEE458800CE6EC1 /* VerificationCodeView.swift in Sources */,
+				45AC74BC2D33D29A00C500DE /* SerialNumberInputView.swift in Sources */,
+				4526C7B82D393D5B00D224B1 /* TaskManager.swift in Sources */,
+				45A263C12D1845FC005D903D /* ErrorManager.swift in Sources */,
+				4526C7BC2D393EA200D224B1 /* MissionItem.swift in Sources */,
 				458DCFE92CECD7E100FC9C57 /* AuthenticationManager.swift in Sources */,
-				457BBE132CD61EFF0013E275 /* CharacterManager.swift in Sources */,
+				4526C7B62D393D5400D224B1 /* TaskListView.swift in Sources */,
+				45AC74C52D33FC5900C500DE /* NavigationErrorTracker.swift in Sources */,
 				45C56C4E2CB6A42000D09C73 /* moai_baby_name_generatorApp.swift in Sources */,
+				45AC74BF2D33DFF300C500DE /* AuthViewModel.swift in Sources */,
+				45A263BF2D1845F6005D903D /* CharacterManager.swift in Sources */,
 				458DCFE42CECD44D00FC9C57 /* ForgotPasswordView.swift in Sources */,
+				459A332D2D355B5F007AEE5F /* StoreView.swift in Sources */,
 				458407872CBA6AC100F9C299 /* Config.swift in Sources */,
+				4526C7AB2D38881E00D224B1 /* PromptManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,6 +571,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRIP_INSTALLED_PRODUCT = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -553,6 +628,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRIP_INSTALLED_PRODUCT = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -575,24 +651,26 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIStatusBarStyle = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.02;
-				OTHER_LDFLAGS = "";
+				MARKETING_VERSION = 1.04;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "moai.moai-baby-name";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -601,7 +679,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "moai-baby-name-generator/moai-baby-name-generator.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "moai-baby-name-generator/moai-baby-name-generatorRelease.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -614,25 +692,27 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIStatusBarStyle = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.02;
-				OTHER_LDFLAGS = "";
+				MARKETING_VERSION = 1.04;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "moai.moai-baby-name";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRIP_INSTALLED_PRODUCT = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -780,6 +860,14 @@
 				minimumVersion = 11.11.0;
 			};
 		};
+		457820B72D07EB3B00BAD49D /* XCRemoteSwiftPackageReference "SwiftyGif" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alexiscreuzot/SwiftyGif";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.4.5;
+			};
+		};
 		45D1D8812CB79187008F752A /* XCRemoteSwiftPackageReference "SwiftOpenAI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/jamesrochabrun/SwiftOpenAI";
@@ -852,6 +940,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4576EEC42CD272D70034D68F /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
 			productName = GoogleMobileAds;
+		};
+		457820B82D07EBB700BAD49D /* SwiftyGif */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 457820B72D07EB3B00BAD49D /* XCRemoteSwiftPackageReference "SwiftyGif" */;
+			productName = SwiftyGif;
 		};
 		457BBE162CD6649B0013E275 /* SwiftOpenAI */ = {
 			isa = XCSwiftPackageProductDependency;

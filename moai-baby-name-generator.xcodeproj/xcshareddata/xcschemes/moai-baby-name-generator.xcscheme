@@ -55,9 +55,9 @@
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      buildConfiguration = "Release"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -82,8 +82,8 @@
       </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = "debug_token"
-            value = "C597277F-9436-4954-88EB-7CBA50ECFEB3"
+            key = "DEBUG_TOKEN"
+            value = "4A66666A-138F-4E46-B881-FB8EDBC4C31B"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

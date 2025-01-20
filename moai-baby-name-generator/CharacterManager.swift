@@ -21,8 +21,14 @@ class CharacterManager {
     }
     
     func getElement(for character: String) -> String {
-        guard let charInfo = characters[character] as? [String: Any],
+        guard let charInfo = characters[character],
               let element = charInfo["element"] as? String else {
+            // Log the unknown element error
+            ErrorManager.shared.logError(
+                category: .unknownElement,
+                message: "Unknown element for character",
+                details: ["character": character]
+            )
             return "未知"
         }
         return element

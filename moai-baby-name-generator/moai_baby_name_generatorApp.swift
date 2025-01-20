@@ -41,6 +41,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
       }
     }
     
+    FirebaseConfiguration.shared.setLoggerLevel(.min)
+    
     return true
   }
     
@@ -90,8 +92,9 @@ struct moai_baby_name_generatorApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .onOpenURL { url in
-                    GIDSignIn.sharedInstance.handle(url)
+                .task {
+                    // 在 App 啟動時更新問題庫
+                    await QuestionManager.shared.updateQuestionsIfNeeded()
                 }
         }
     }

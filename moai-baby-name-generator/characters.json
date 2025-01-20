@@ -121,7 +121,7 @@
       "element": "金"
     },
     "干": {
-      "strokes": 13,
+      "strokes": 3,
       "element": "木"
     },
     "工": {
@@ -4304,6 +4304,10 @@
       "strokes": 8,
       "element": "土"
     },
+    "瑄": {
+      "strokes": 13,
+      "element": "金"
+    },
     "坦": {
       "strokes": 13,
       "element": "金"
@@ -4664,6 +4668,7 @@
       "strokes": 9,
       "element": "金"
     },
+
     "俞": {
       "strokes": 13,
       "element": "金"
@@ -10312,9 +10317,41 @@
       "strokes": 11,
       "element": "土"
     },
+    "妍": {
+      "strokes": 7,
+      "element": "水"
+    },
+    "穩": {
+      "strokes": 19,
+      "element": "土"
+    },
+    "意": {
+      "strokes": 13,
+      "element": "土"
+    },
+    "嫻": {
+      "strokes": 15,
+      "element": "金"
+    },
+    "麗": {
+      "strokes": 19,
+      "element": "火"
+    },
+    "昇": {
+      "strokes": 8,
+      "element": "火"
+    },
+    "靈": {
+      "strokes": 24,
+      "element": "火"
+    },
     "崩": {
       "strokes": 19,
       "element": "金"
+    },
+    "韻": {
+      "strokes": 19,
+      "element": "土"
     },
     "埠": {
       "strokes": 11,

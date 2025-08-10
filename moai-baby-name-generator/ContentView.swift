@@ -697,7 +697,7 @@ struct MainView: View {
     @StateObject private var usageManager = UsageManager.shared
     @StateObject private var interstitialAd = InterstitialAdViewModel()
     @StateObject private var iapManager = IAPManager.shared
-    // @ObservedObject private var taskManager = TaskManager.shared
+    @ObservedObject private var taskManager = TaskManager.shared
     
     // Environment and storage
     @Environment(\.colorScheme) var colorScheme
@@ -718,6 +718,10 @@ struct MainView: View {
     // Add new state for showing account linking options
     @State private var showAccountLinkingOptions = false
     @State private var showSerialNumberInput = false
+
+    // 添加新的 state 變數
+    @State private var showCharCountError = false
+    @State private var generatedNameWithError: String = ""
 
     var body: some View {
         ZStack {
@@ -772,12 +776,12 @@ struct MainView: View {
                         selectedTab = 2 
                     }
                     Spacer()
-                    // TabBarButton(imageName: "setting_icon", isSelected: selectedTab == 3, badgeCount: taskManager.missions.filter { !$0.isRewardClaimed }.count) { 
-                    //     selectedTab = 3 
-                    // }
-                    TabBarButton(imageName: "setting_icon", isSelected: selectedTab == 3, badgeCount: 0) { 
+                    TabBarButton(imageName: "setting_icon", isSelected: selectedTab == 3, badgeCount: taskManager.missions.filter { !$0.isRewardClaimed }.count) { 
                         selectedTab = 3 
                     }
+                    // TabBarButton(imageName: "setting_icon", isSelected: selectedTab == 3, badgeCount: 0) { 
+                    //     selectedTab = 3 
+                    // }
                     Spacer()
                 }
                 .padding(.horizontal, 20)
@@ -799,10 +803,13 @@ struct MainView: View {
             }
         }
         .navigationDestination(for: FormData.self) { formData in
-            DialogView(
-                navigationPath: $navigationPath,
-                selectedTab: $selectedTab,  // 傳遞 selectedTab
-                formData: formData)
+            DesignFocusView(navigationPath: $navigationPath, formData: formData)
+            .transition(.identity)
+        }
+        .navigationDestination(for: FormWithDesignData.self) { formWithDesignData in
+            SpecialRequirementView(navigationPath: $navigationPath, 
+                                 formWithDesignData: formWithDesignData,
+                                 selectedTab: $selectedTab)
             .transition(.identity)
         }
         .preferredColorScheme(isDarkMode ? .dark : .light)
@@ -824,7 +831,7 @@ struct MainView: View {
                         Color.black.frame(height: 0)
                         HStack {
                             Spacer()
-                            Text("千尋取名")
+                            Text("千尋AI命名")
                                 .font(.custom("NotoSansTC-Black", size: 20))
                                 .foregroundColor(.white)
                             Spacer()
@@ -912,7 +919,7 @@ struct MainView: View {
                                 showAlert = true
                             }
                         }) {    
-                            Text("開始取名")
+                            Text("開始命名")
                                 .font(.custom("NotoSansTC-Black", size: min(32, geometry.size.width * 0.08)))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
@@ -1115,21 +1122,21 @@ struct MainView: View {
                         .padding(.horizontal)
 
                         // 新增任務中心區塊
-                        // VStack(alignment: .leading, spacing: 15) {
-                        //     Text("任務")
-                        //         .font(.custom("NotoSansTC-Black", size: 20))
-                        //         .foregroundColor(.customText)
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("任務")
+                                .font(.custom("NotoSansTC-Black", size: 20))
+                                .foregroundColor(.customText)
                             
-                        //     NavigationLink(destination: TaskListView()) {
-                        //         SettingRow(
-                        //             icon: "list.star",
-                        //             title: "任務中心",
-                        //             textColor: .customText,
-                        //             badge: taskManager.tabBadgeCount > 0 ? "\(taskManager.tabBadgeCount)" : nil
-                        //         )
-                        //     }
-                        // }
-                        // .padding(.horizontal)
+                            NavigationLink(destination: TaskListView()) {
+                                SettingRow(
+                                    icon: "list.star",
+                                    title: "任務中心",
+                                    textColor: .customText,
+                                    badge: taskManager.tabBadgeCount > 0 ? "\(taskManager.tabBadgeCount)" : nil
+                                )
+                            }
+                        }
+                        .padding(.horizontal)
                     }
                     
                     
@@ -1153,11 +1160,16 @@ struct MainView: View {
                         }
                         
                         Button(action: {
-                            if let url = URL(string: "https://moai.tw") {
+                            if let url = URL(string: "https://lin.ee/HtLRDoX") {
                                 UIApplication.shared.open(url)
                             }
                         }) {
-                            SettingRow(icon: "envelope.fill", title: "聯絡我們")
+                            SettingRow(
+                                icon: "line", 
+                                title: "官方LINE",
+                                iconColor: Color(hex: "#FF798C"),
+                                isCustomImage: true
+                            )
                         }
                     }
                     .padding(.horizontal)
@@ -1360,9 +1372,11 @@ struct MainView: View {
         let title: String
         var price: String? = nil
         var textColor: Color = .customText
+        var iconColor: Color = .customAccent // 新增 iconColor 參數
         var isPurchasing: Bool = false
         var isLoading: Bool = false
         var badge: String? // 新增 badge 參數
+        var isCustomImage: Bool = false // 新增參數來區分系統圖標和自定義圖片
         
         var body: some View {
             HStack {
@@ -1371,11 +1385,18 @@ struct MainView: View {
                         .scaleEffect(0.8)
                         .frame(width: 24, height: 24)
                 } else {
+                    if isCustomImage {
+                        Image(icon)
+                            .resizable()
+                            .scaledToFit()
+                        .frame(width: 24, height: 24)
+                } else {
                     Image(systemName: icon)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 24, height: 24)
-                        .foregroundColor(.customAccent)
+                        .foregroundColor(iconColor)
+                    }
                 }
                 
                 Text(isLoading ? "綁定中..." : title)
@@ -1770,7 +1791,8 @@ struct FormView: View {
     @Binding var selectedTab: Int
     @Binding var isLoggedIn: Bool
     @ObservedObject var authViewModel: AuthViewModel
-    @State private var surname = ""
+    @State private var fatherName = ""
+    @State private var motherName = ""
     @State private var middleName = ""
     @State private var numberOfNames = 2
     @State private var isBorn = false
@@ -1778,6 +1800,7 @@ struct FormView: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var gender = "未知"
+    @State private var surnameChoice = "從父姓"  // 新增：姓氏選擇
     @Environment(\.colorScheme) var colorScheme
     
     // 2. 修改初始化方法以匹配調用
@@ -1804,18 +1827,22 @@ struct FormView: View {
                 
                 VStack(spacing: 0) {
                     ScrollView {
-                        VStack(spacing: -10) {
+                        VStack(spacing: 15) {
                             FormHeaderView()
                             FormFieldsView(
-                                surname: $surname,
+                                fatherName: $fatherName,
+                                motherName: $motherName,
                                 middleName: $middleName,
                                 numberOfNames: $numberOfNames,
                                 gender: $gender,
                                 isBorn: $isBorn,
-                                birthDate: $birthDate
+                                birthDate: $birthDate,
+                                surnameChoice: $surnameChoice
                             )
                         }
+                        .padding(.bottom, 120) // 為底部按鈕留出足夠空間
                     }
+                    .scrollIndicators(.visible)
                     
                     BottomButtonView(action: validateAndProceed)
                 }
@@ -1843,17 +1870,23 @@ struct FormView: View {
     
     private func validateAndProceed() {
         // Validate all required fields
-        if surname.isEmpty {
-            alertMessage = "請輸入姓氏"
+        if surnameChoice == "從父姓" && fatherName.isEmpty {
+            alertMessage = "選擇從父姓時，爸爸姓名為必填"
             showAlert = true
-        } else if surname.count > 2 {
-            alertMessage = "姓氏不能超過兩個字"
+        } else if surnameChoice == "從母姓" && motherName.isEmpty {
+            alertMessage = "選擇從母姓時，媽媽姓名為必填"
+            showAlert = true
+        } else if fatherName.count > 3 {
+            alertMessage = "爸爸姓名不能超過三個字"
+            showAlert = true
+        } else if motherName.count > 3 {
+            alertMessage = "媽媽姓名不能超過三個字"
             showAlert = true
         } else if middleName.count > 1 {
             alertMessage = "中間字不能超過一個字"
             showAlert = true
         } else {
-            let formData = FormData(surname: surname, middleName: middleName, numberOfNames: numberOfNames, isBorn: isBorn, birthDate: birthDate, gender: gender)
+            let formData = FormData(fatherName: fatherName, motherName: motherName, middleName: middleName, numberOfNames: numberOfNames, isBorn: isBorn, birthDate: birthDate, gender: gender, surnameChoice: surnameChoice)
             withAnimation(nil) {
                 navigationPath.append(formData)
             }
@@ -1871,7 +1904,7 @@ private struct FormHeaderView: View {
                 .frame(width: 100, height: 100)
             
             VStack(alignment: .leading) {
-                Text("送給孩子的第一份禮物\n就是為孩子取名字！")
+                Text("送給孩子的第一份禮物\n就是為孩子命名！")
                     .font(.custom("NotoSansTC-Regular", size: 18))
                     .foregroundColor(.black)
                     .padding(12)
@@ -1893,45 +1926,82 @@ private struct FormHeaderView: View {
 
 // Form Fields View
 private struct FormFieldsView: View {
-    @Binding var surname: String
+    @Binding var fatherName: String
+    @Binding var motherName: String
     @Binding var middleName: String
     @Binding var numberOfNames: Int
     @Binding var gender: String
     @Binding var isBorn: Bool
     @Binding var birthDate: Date
+    @Binding var surnameChoice: String
     @State private var showMiddleNameAlert = false
     
     var body: some View {
         VStack(spacing: 15) {
-            // Add required field indicator for surname
-            VStack(alignment: .leading, spacing: 5) {
-                CustomTextField(
-                    placeholder: "姓氏（必填）", 
-                    text: $surname
-                )
-            }
+            // 姓氏選擇（必選）
+            SurnameChoiceSelector(surnameChoice: $surnameChoice)
             
-            // Add optional field indicator for middle name
-            CustomTextField(
-                placeholder: numberOfNames == 1 ? "單名不得設定中間字" : "指定中間字（選填）", 
-                text: $middleName
-            )
-            .disabled(numberOfNames == 1)
-            .onChange(of: numberOfNames) { newValue in
-                if newValue == 1 && !middleName.isEmpty {
-                    showMiddleNameAlert = true
-                    middleName = ""  // 清空中間字
-                }
-            }
-            .alert(isPresented: $showMiddleNameAlert) {
-                Alert(
-                    title: Text("提示"),
-                    message: Text("單名不得設定中間字"),
-                    dismissButton: .default(Text("確定"))
+            // 父母姓名欄位
+            VStack(alignment: .leading, spacing: 5) {
+                Text("父母姓名")
+                    .font(.custom("NotoSansTC-Regular", size: 16))
+                    .foregroundColor(.customText)
+                    .padding(.leading, 5)
+                
+                HStack(spacing: 10) {
+                CustomTextField(
+                    placeholder: surnameChoice == "從父姓" ? "爸爸姓名（必填）" : "爸爸姓名", 
+                    text: $fatherName
                 )
+                .overlay(
+                    // 必填標示
+                    surnameChoice == "從父姓" ? 
+                    RoundedRectangle(cornerRadius: 25)
+                        .stroke(Color.red.opacity(fatherName.isEmpty ? 0.5 : 0), lineWidth: 2) : nil
+                )
+                
+                CustomTextField(
+                    placeholder: surnameChoice == "從母姓" ? "媽媽姓名（必填）" : "媽媽姓名", 
+                    text: $motherName
+                )
+                .overlay(
+                    // 必填標示
+                    surnameChoice == "從母姓" ? 
+                    RoundedRectangle(cornerRadius: 25)
+                        .stroke(Color.red.opacity(motherName.isEmpty ? 0.5 : 0), lineWidth: 2) : nil
+                )
+                }
             }
             
             NameCountSelector(numberOfNames: $numberOfNames)
+            
+            // 中間字欄位 - 只在非單名時顯示
+            if numberOfNames != 1 {
+            VStack(alignment: .leading, spacing: 5) {
+                Text("中間字")
+                    .font(.custom("NotoSansTC-Regular", size: 16))
+                    .foregroundColor(.customText)
+                    .padding(.leading, 5)
+                
+                CustomTextField(
+                        placeholder: "指定中間字（選填）", 
+                    text: $middleName
+                )
+                .onChange(of: numberOfNames) { newValue in
+                    if newValue == 1 && !middleName.isEmpty {
+                        showMiddleNameAlert = true
+                        middleName = ""  // 清空中間字
+                    }
+                }
+                .alert(isPresented: $showMiddleNameAlert) {
+                    Alert(
+                        title: Text("提示"),
+                        message: Text("單名不得設定中間字"),
+                        dismissButton: .default(Text("確定"))
+                    )
+                }
+            }
+            }
             GenderSelector(gender: $gender)
             BirthInfoView(isBorn: $isBorn, birthDate: $birthDate)
         }
@@ -1944,34 +2014,69 @@ private struct NameCountSelector: View {
     @Binding var numberOfNames: Int
     
     var body: some View {
-        HStack(spacing: 0) {
-            Button(action: { 
-                hideKeyboard()
-                numberOfNames = 1 
-            }) {
-                Text("單名")
-                    .foregroundColor(numberOfNames == 1 ? .white : Color(hex: "#FF798C"))
-                    .frame(width: 100)
-                    .padding(.vertical, 10)
-                    .background(numberOfNames == 1 ? Color(hex: "#FF798C") : Color(hex: "#FFE5E9"))
+        VStack(alignment: .leading, spacing: 5) {
+            Text("單/雙名")
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customText)
+                .padding(.leading, 5)
+            
+            HStack(spacing: 0) {
+                ForEach([1, 2], id: \.self) { count in
+                    Button(action: { 
+                        hideKeyboard()
+                        numberOfNames = count 
+                    }) {
+                        Text(count == 1 ? "單名" : "雙名")
+                            .font(.custom("NotoSansTC-Regular", size: 16))
+                            .foregroundColor(numberOfNames == count ? .white : Color(hex: "#FF798C"))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(numberOfNames == count ? Color(hex: "#FF798C") : Color(hex: "#FFE5E9"))
+                    }
+                }
             }
-            Button(action: { 
-                hideKeyboard()
-                numberOfNames = 2 
-            }) {
-                Text("雙名")
-                    .foregroundColor(numberOfNames == 2 ? .white : Color(hex: "#FF798C"))
-                    .frame(width: 100)
-                    .padding(.vertical, 10)
-                    .background(numberOfNames == 2 ? Color(hex: "#FF798C") : Color(hex: "#FFE5E9"))
-            }
+            .background(Color(hex: "#FFE5E9"))
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color(hex: "#FF798C"), lineWidth: 1)
+            )
         }
-        .background(Color(hex: "#FFE5E9"))
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color(hex: "#FF798C"), lineWidth: 1)
-        )
+    }
+}
+
+// Surname Choice Selector
+private struct SurnameChoiceSelector: View {
+    @Binding var surnameChoice: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("姓氏選擇（必選）")
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customText)
+                .padding(.leading, 5)
+            
+            HStack(spacing: 0) {
+                ForEach(["從父姓", "從母姓"], id: \.self) { option in
+                    Button(action: { 
+                        hideKeyboard()
+                        surnameChoice = option 
+                    }) {
+                        Text(option)
+                            .foregroundColor(surnameChoice == option ? .white : Color(hex: "#FF798C"))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(surnameChoice == option ? Color(hex: "#FF798C") : Color(hex: "#FFE5E9"))
+                    }
+                }
+            }
+            .background(Color(hex: "#FFE5E9"))
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color(hex: "#FF798C"), lineWidth: 1)
+            )
+        }
     }
 }
 
@@ -1980,26 +2085,34 @@ private struct GenderSelector: View {
     @Binding var gender: String
     
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(["男", "女", "未知"], id: \.self) { option in
-                Button(action: { 
-                    hideKeyboard()
-                    gender = option 
-                }) {
-                    Text(option)
-                        .foregroundColor(gender == option ? .white : Color(hex: "#FF798C"))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(gender == option ? Color(hex: "#FF798C") : Color(hex: "#FFE5E9"))
+        VStack(alignment: .leading, spacing: 5) {
+            Text("性別")
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customText)
+                .padding(.leading, 5)
+            
+            HStack(spacing: 0) {
+                ForEach(["男", "女", "未知"], id: \.self) { option in
+                    Button(action: { 
+                        hideKeyboard()
+                        gender = option 
+                    }) {
+                        Text(option)
+                            .font(.custom("NotoSansTC-Regular", size: 16))
+                            .foregroundColor(gender == option ? .white : Color(hex: "#FF798C"))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(gender == option ? Color(hex: "#FF798C") : Color(hex: "#FFE5E9"))
+                    }
                 }
             }
+            .background(Color(hex: "#FFE5E9"))
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color(hex: "#FF798C"), lineWidth: 1)
+            )
         }
-        .background(Color(hex: "#FFE5E9"))
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color(hex: "#FF798C"), lineWidth: 1)
-        )
     }
 }
 
@@ -2009,22 +2122,28 @@ private struct BirthInfoView: View {
     @Binding var birthDate: Date
     
     var body: some View {
-        VStack(spacing: 15) {
-            Toggle("未/已出生", isOn: $isBorn)
-                .padding()
-                .background(Color.white)
-                .foregroundColor(.black)
-                .cornerRadius(25)
-                .toggleStyle(CustomToggleStyle(onColor: Color(hex: "#FF798C")))
-                .onTapGesture {
-                    hideKeyboard()
-                }
+        VStack(alignment: .leading, spacing: 15) {
+            VStack(alignment: .leading, spacing: 5) {
+                Text("出生狀態")
+                    .font(.custom("NotoSansTC-Regular", size: 16))
+                    .foregroundColor(.customText)
+                    .padding(.leading, 5)
+                
+                Toggle("未/已出生", isOn: $isBorn)
+                    .padding()
+                    .background(Color.white)
+                    .foregroundColor(.black)
+                    .cornerRadius(25)
+                    .toggleStyle(CustomToggleStyle(onColor: Color(hex: "#FF798C")))
+                    .onTapGesture {
+                        hideKeyboard()
+                    }
+            }
             
             if isBorn {
                 DatePicker(
-                    "出生日期",
+                    "生日/預產期",
                     selection: $birthDate,
-                    in: ...Date(),
                     displayedComponents: [.date]
                 )
                 .datePickerStyle(.compact)
@@ -2061,9 +2180,14 @@ private struct BottomButtonView: View {
                     .background(Color(hex: "#FF798C"))
                     .cornerRadius(25)
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.bottom, 20)
         }
-        .background(Color.clear) // 改為透明背景
+        .background(
+            Color.white.opacity(0.95)
+                .blur(radius: 10)
+                .edgesIgnoringSafeArea(.bottom)
+        )
         .ignoresSafeArea(.keyboard)
     }
 }
@@ -2104,18 +2228,44 @@ extension View {
 }
 
 struct FormData: Hashable {
-    let surname: String
+    let fatherName: String
+    let motherName: String
     let middleName: String
     let numberOfNames: Int
     let isBorn: Bool
     let birthDate: Date
     let gender: String
+    let surnameChoice: String
+}
+
+struct DesignFocusData: Hashable {
+    let selectedOptions: [String]
+    let customDescription: String?
+}
+
+struct SpecialRequirementData: Hashable {
+    let selectedRequirements: [String]
+    let detailDescription: String?
+}
+
+// 中間階段的資料結構，包含 FormData 和 DesignFocusData
+struct FormWithDesignData: Hashable {
+    let formData: FormData
+    let designFocusData: DesignFocusData
+}
+
+struct CombinedFormData: Hashable {
+    let formData: FormData
+    let designFocusData: DesignFocusData
+    let specialRequirementData: SpecialRequirementData? // 新增特殊需求資料
 }
 
 struct DialogView: View {
     @Binding var navigationPath: NavigationPath
     @Binding var selectedTab: Int  // 新增這行
     let formData: FormData
+    let designFocusData: DesignFocusData
+    let specialRequirementData: SpecialRequirementData?
     @State private var questions: [Question] = []
     @State private var currentQuestionIndex = 0
     @State private var answers: [String] = []
@@ -2133,13 +2283,21 @@ struct DialogView: View {
     // Add a state to track if generation is in progress
     @State private var isGenerating = false
     
+    // 添加新的 state 變數
+    @State private var showCharCountError = false
+    @State private var generatedNameWithError: String = ""
+    
     // 修改初始化方法
     init(navigationPath: Binding<NavigationPath>,
          selectedTab: Binding<Int>,  // 新增這行
-         formData: FormData) {
+         formData: FormData,
+         designFocusData: DesignFocusData,
+         specialRequirementData: SpecialRequirementData?) {
         self._navigationPath = navigationPath
         self._selectedTab = selectedTab  // 新增這行
         self.formData = formData
+        self.designFocusData = designFocusData
+        self.specialRequirementData = specialRequirementData
     }
     
     var body: some View {
@@ -2380,6 +2538,21 @@ struct DialogView: View {
                 .scaledToFill()
                 .edgesIgnoringSafeArea(.all)
         )
+        // 在 body 中適當位置添加錯誤提示視窗
+        .alert("字數錯誤", isPresented: $showCharCountError) {
+            Button("重新生成") {
+                Task {
+                    await generateName() // 重新生成名字
+                }
+            }
+            Button("取消", role: .cancel) {
+                showCharCountError = false
+            }
+        } message: {
+            let minLength = formData.numberOfNames + 1
+            let maxLength = formData.numberOfNames + 2
+            Text("生成的名字長度不符合預期。\n預期長度：\(minLength)-\(maxLength) 個字\n實際長度：\(generatedNameWithError.count) 個字\n\n要重新生成嗎？")
+        }
     }
 
     
@@ -2466,11 +2639,9 @@ struct DialogView: View {
                     monitor.start("Error Handling")
                     self.isGeneratingName = false
                     self.isGenerating = false
-                    if let nsError = error as NSError? {
-                        self.errorMessage = "生成名字時發生錯誤：\(nsError.localizedDescription)"
-                    } else {
-                        self.errorMessage = "生成名字時發生未知錯誤。請稍後再試。"
-                    }
+                    // 使用詳細的錯誤分類
+                    let detailedErrorMessage = self.categorizeError(error)
+                    self.errorMessage = detailedErrorMessage
                     monitor.end("Error Handling")
                     
                     print("❌ [Generate] 名字生成流程失敗")
@@ -2484,7 +2655,9 @@ struct DialogView: View {
     
     private func preparePrompt() -> String {
         let formData = """
-        姓氏: \(formData.surname)
+        爸爸姓名: \(formData.fatherName)
+        媽媽姓名: \(formData.motherName)
+        姓氏選擇: \(formData.surnameChoice)
         指定中間字: \(formData.middleName)
         單/雙名: \(formData.numberOfNames == 1 ? "單名" : "雙名")
         性別: \(formData.gender)
@@ -2516,6 +2689,210 @@ struct DialogView: View {
         return template
             .replacingOccurrences(of: "{{formData}}", with: formData)
             .replacingOccurrences(of: "{{meaningString}}", with: meaningString)
+    }
+    
+    // MARK: - 新版提示詞準備方法 (適用於新workflow: 資料填寫->設計主軸->特殊需求->生成結果)
+    private func preparePromptv2(
+        formData: FormData, 
+        designFocusData: DesignFocusData, 
+        specialRequirementData: SpecialRequirementData?
+    ) -> String {
+        
+        // 1. 基本資料部分
+        var formDataString = """
+        爸爸姓名: \(formData.fatherName)
+        媽媽姓名: \(formData.motherName)
+        姓氏選擇: \(formData.surnameChoice)
+        """
+        
+        // 只有非空的中間字才加入
+        if !formData.middleName.isEmpty {
+            formDataString += "\n指定中間字: \(formData.middleName)"
+        }
+        
+        formDataString += """
+        
+        單/雙名: \(formData.numberOfNames == 1 ? "單名" : "雙名")
+        性別: \(formData.gender)
+        """
+        
+        // 2. 設計主軸部分
+        var designFocusString = ""
+        if !designFocusData.selectedOptions.isEmpty {
+            designFocusString = """
+            
+            設計主軸:
+            \(designFocusData.selectedOptions.map { "- \($0)" }.joined(separator: "\n"))
+            """
+        }
+        
+        // 如果有自定義描述，則加入
+        if let customDescription = designFocusData.customDescription, !customDescription.isEmpty {
+            if designFocusString.isEmpty {
+                designFocusString = "\n設計主軸:"
+            }
+            designFocusString += "\n- 自定義描述: \(customDescription)"
+        }
+        
+        // 3. 特殊需求部分
+        var specialRequirementString = ""
+        if let specialRequirementData = specialRequirementData {
+            if !specialRequirementData.selectedRequirements.isEmpty {
+                specialRequirementString = """
+                
+                特殊需求:
+                \(specialRequirementData.selectedRequirements.map { "- \($0)" }.joined(separator: "\n"))
+                """
+            }
+            
+            // 如果有詳細描述，則加入
+            if let detailDescription = specialRequirementData.detailDescription, !detailDescription.isEmpty {
+                if specialRequirementString.isEmpty {
+                    specialRequirementString = "\n特殊需求:"
+                }
+                specialRequirementString += "\n- 詳細說明: \(detailDescription)"
+            }
+        }
+        
+        // 4. 組合完整的表單資料
+        let completeFormData = formDataString + designFocusString + specialRequirementString
+        
+        // 5. 使用專門為新workflow設計的模板
+        let template = """
+        請根據以下表單資料為嬰兒生成中文名字：
+
+        命名要求：
+        1. 名字為單名或雙名，務必確保與基本資料中的單雙名一致。
+        2. 如有指定中間字，須包含於名中。
+        3. 名字符合嬰兒性別。
+        4. 典故來源於具體內容不可僅引用篇名。
+        5. 典故與名字有明確聯繫，並詳述其關係。
+        6. 根據設計主軸提供分析，說明名字如何體現設計理念。
+        7. 根據特殊需求提供分析，說明名字如何滿足特殊要求。
+        
+        注意事項：
+        1. 請確保輸出格式符合JSON規範。
+        2. 所有字串值使用雙引號，並適當使用轉義字符。
+        3. 請使用繁體中文，禁止使用簡體中文。
+
+        基本資料：{{formData}}
+        """
+        
+        print("🔄 [Prompts] 使用新workflow專用模板v2: \(template)")
+        print("📝 [FormData] 完整表單資料v2: \(completeFormData)")
+        
+        // 6. 將資料填入模板
+        return template.replacingOccurrences(of: "{{formData}}", with: completeFormData)
+    }
+    
+    // MARK: - 新版名字生成方法 (適用於新workflow)
+    private func generateNamev2(
+        formData: FormData,
+        designFocusData: DesignFocusData, 
+        specialRequirementData: SpecialRequirementData?
+    ) {
+        // Add a guard to prevent multiple generations
+        let monitor = PerformanceMonitor.shared
+        monitor.reset()
+        monitor.start("Total Generation Time v2")
+        
+        guard !isGenerating else { return }
+        
+        print("\n=== 開始生成名字流程 v2 ===")
+        monitor.start("Usage Check")
+        print("📱 [Generate v2] 開始生成名字請求")
+        print("📊 [Uses] 生成前剩餘次數: \(usageManager.remainingUses)")
+        
+        // Check remaining uses before generating
+        if usageManager.remainingUses <= 0 {
+            monitor.end("Usage Check")
+            print("❌ [Generate v2] 使用次數不足，無法生成")
+            errorMessage = "很抱歉，您的免費使用次數已用完。"
+            return
+        }
+        monitor.end("Usage Check")
+        
+        // Set generating flag
+        isGenerating = true
+        
+        // Deduct one use
+        usageManager.remainingUses -= 1
+        print("📊 [Uses] 扣除一次使用機會")
+        print("📊 [Uses] 當前剩餘次數: \(usageManager.remainingUses)")
+
+        // 更新雲端資料
+        Task {
+            try? await usageManager.updateCloudData()
+        }
+        
+        monitor.start("UI Update - Loading")
+        isGeneratingName = true
+        errorMessage = nil
+        monitor.end("UI Update - Loading")
+
+        // Prepare the prompt for the AI model using v2 method
+        monitor.start("Prompt Preparation v2")
+        let prompt = preparePromptv2(
+            formData: formData,
+            designFocusData: designFocusData,
+            specialRequirementData: specialRequirementData
+        )
+        monitor.end("Prompt Preparation v2")
+
+        // Call the OpenAI API to generate the name (reuse existing API call method)
+        Task {
+            do {
+                print("🤖 [API v2] 開始調用 OpenAI API")
+                monitor.start("API Call v2")
+                print("📝 [Prompt v2] 調用 OpenAI API 的 prompt: \(prompt)")
+                let (name, analysis, wuxing) = try await callOpenAIAPIv2(
+                    with: prompt, 
+                    formData: formData
+                )
+                monitor.end("API Call v2")
+                print("✅ [API v2] API 調用成功")
+                print("📝 [Result v2] 生成的名字: \(name)")
+                
+                await MainActor.run {
+                    monitor.start("UI Update - Results v2")
+                    self.generatedName = name
+                    self.nameAnalysis = analysis
+                    self.wuxing = wuxing
+                    self.isGeneratingName = false
+                    self.isGenerating = false
+                    monitor.end("UI Update - Results v2")
+                    
+                    print("✅ [Generate v2] 名字生成流程完成")
+                    monitor.end("Total Generation Time v2")
+                    monitor.printSummary()
+                    print("=== 生成名字流程結束 v2 ===\n")
+                }
+            } catch {
+                await MainActor.run {
+                    monitor.start("Error Handling v2")
+                    self.isGeneratingName = false
+                    self.isGenerating = false
+                    // 使用詳細的錯誤分類
+                    let detailedErrorMessage = self.categorizeError(error)
+                    self.errorMessage = detailedErrorMessage
+                    monitor.end("Error Handling v2")
+                    
+                    // 詳細的錯誤日誌
+                    print("❌ [Generate v2] 名字生成流程失敗")
+                    print("🔍 [Error Details] 錯誤類型: \(type(of: error))")
+                    print("🔍 [Error Details] 錯誤描述: \(error.localizedDescription)")
+                    if let nsError = error as NSError? {
+                        print("🔍 [Error Details] 錯誤代碼: \(nsError.code)")
+                        print("🔍 [Error Details] 錯誤域: \(nsError.domain)")
+                        print("🔍 [Error Details] 用戶信息: \(nsError.userInfo)")
+                    }
+                    print("🔍 [Error Details] 用戶看到的錯誤訊息: \(detailedErrorMessage)")
+                    monitor.end("Total Generation Time v2")
+                    monitor.printSummary()
+                    print("=== 生成名字流程結束 v2 ===\n")
+                }
+            }
+        }
     }
 
     // 1. 首先定義所需的 JSON Schema
@@ -2653,19 +3030,7 @@ struct DialogView: View {
         )
 
         let messages: [ChatCompletionParameters.Message] = [
-            .init(role: .system, content: .text("""
-                您是一位專精於中華文化的命名顧問，具備以下專業知識：
-                1. 精通《說文解字》、《康熙字典》等字書，能準確解析漢字字義與內涵
-                2. 熟稔《詩經》、《左傳》、《楚辭》、《史記》、《論語》等經典文獻，善於運用典故為名字增添文化深度
-                3. 深諳五行八字、音律諧和之道，確保名字音韻優美
-                4. 擅長結合現代命名美學，打造既傳統又時尚的名字
-
-                您的任務是：
-                1. 確保名字的音韻、字義皆相輔相成
-                2. 選用富有正面寓意的典故，並詳細解釋其文化內涵
-                3. 分析名字如何呼應家長的期望與願景
-                4. 確保名字有創意，不落俗套
-                """)),
+            .init(role: .system, content: .text(PromptManager.shared.getSystemPrompt())),
             .init(role: .user, content: .text(prompt))
         ]
 
@@ -2727,24 +3092,32 @@ struct DialogView: View {
             monitor.end("Response Processing")
             
             // Add character count validation
+            // 由於現在沒有固定姓氏，只驗證生成的名字總長度是否合理
             let expectedCharCount = formData.numberOfNames
-            let actualCharCount = jsonResult.name.count - formData.surname.count
-            if actualCharCount != expectedCharCount {
+            let actualCharCount = jsonResult.name.count
+            
+            // 合理的名字長度範圍：單名 2-3 字，雙名 3-4 字
+            let minLength = formData.numberOfNames + 1  // 至少需要姓氏 + 指定字數
+            let maxLength = formData.numberOfNames + 2  // 最多姓氏 2 字 + 指定字數
+            
+            if actualCharCount < minLength || actualCharCount > maxLength {
                 ErrorManager.shared.logError(
                     category: .aiResponseWrongCharacterCount,
                     message: "生成名字字數錯誤",
                     details: [
-                        "expected_count": "\(expectedCharCount)",
+                        "expected_range": "\(minLength)-\(maxLength)",
                         "actual_count": "\(actualCharCount)",
                         "generated_name": jsonResult.name,
-                        "surname": formData.surname
+                        "father_name": formData.fatherName,
+                        "mother_name": formData.motherName
                     ]
                 )
-                // throw NSError(
-                //     domain: "NameGeneration",
-                //     code: 1001,
-                //     userInfo: [NSLocalizedDescriptionKey: "生成的名字字數不符合要求，請重試"]
-                // )
+                showCharCountError = true
+                generatedNameWithError = jsonResult.name
+                throw NameGenerationError.wrongCharacterCount(
+                    expected: expectedCharCount,
+                    actual: actualCharCount
+                )
             }
             
             return (jsonResult.name, analysisDict, elements)
@@ -2797,6 +3170,245 @@ struct DialogView: View {
         }
     }
     
+    // MARK: - 新版API調用方法 (適用於新workflow，兼容v1結果模板)
+    private func callOpenAIAPIv2(with prompt: String, formData: FormData) async throws -> (String, [String: String], [String]) {
+        let monitor = PerformanceMonitor.shared
+        
+        monitor.start("API Setup v2")
+        let apiKey = APIConfig.openAIKey
+        let service = OpenAIServiceFactory.service(apiKey: apiKey)
+        monitor.end("API Setup v2")
+
+        // 1. 定義典故分析的 Schema
+        let literaryAllusionSchema = JSONSchema(
+            type: .object,
+            properties: [
+                "source": JSONSchema(type: .string),
+                "original_text": JSONSchema(type: .string),
+                "interpretation": JSONSchema(type: .string),
+                "connection": JSONSchema(type: .string)
+            ],
+            required: ["source", "original_text", "interpretation", "connection"],
+            additionalProperties: false
+        )
+
+        // 2. 定義分析的 Schema (簡化版，不包含情境分析)
+        let analysisSchema = JSONSchema(
+            type: .object,
+            properties: [
+                "character_meaning": JSONSchema(type: .string),
+                "literary_allusion": literaryAllusionSchema,
+                "design_focus_analysis": JSONSchema(type: .string), // 新增：設計主軸分析
+                "special_requirements_analysis": JSONSchema(type: .string) // 新增：特殊需求分析
+            ],
+            required: ["character_meaning", "literary_allusion", "design_focus_analysis", "special_requirements_analysis"],
+            additionalProperties: false
+        )
+
+        // 3. 定義回應格式的 Schema
+        let responseFormatSchema = JSONSchemaResponseFormat(
+            name: "name_generation_v2",
+            strict: true,
+            schema: JSONSchema(
+                type: .object,
+                properties: [
+                    "name": JSONSchema(type: .string),
+                    "analysis": analysisSchema
+                ],
+                required: ["name", "analysis"],
+                additionalProperties: false
+            )
+        )
+
+        let messages: [ChatCompletionParameters.Message] = [
+            .init(role: .system, content: .text(PromptManager.shared.getSystemPrompt())),
+            .init(role: .user, content: .text(prompt))
+        ]
+
+        let parameters = ChatCompletionParameters(
+            messages: messages,
+            model: .gpt4omini,
+            responseFormat: .jsonSchema(responseFormatSchema)
+        )
+
+        monitor.start("API Request Preparation v2")
+        let completionObject = try await service.startChat(parameters: parameters)
+        monitor.end("API Request Preparation v2")
+        
+        monitor.start("Response Processing v2")
+        
+        // 🔍 打印完整的原始API回覆 (DialogView)
+        print("📡 [Raw API Response] ======== 開始原始API回覆 (DialogView) ========")
+        print("📡 [Raw API Response] 完整completionObject: \(completionObject)")
+        print("📡 [Raw API Response] choices數量: \(completionObject.choices.count)")
+        
+        if let firstChoice = completionObject.choices.first {
+            print("📡 [Raw API Response] 第一個choice的message: \(firstChoice.message)")
+            print("📡 [Raw API Response] message.role: \(firstChoice.message.role)")
+            print("📡 [Raw API Response] message.content: \(firstChoice.message.content ?? "nil")")
+        }
+        
+        guard let jsonString = completionObject.choices.first?.message.content,
+              let jsonData = jsonString.data(using: .utf8) else {
+            print("❌ [Raw API Response] 無法獲取有效的JSON回應 (DialogView)")
+            print("📡 [Raw API Response] ======== 結束原始API回覆 (DialogView) ========")
+            ErrorManager.shared.logError(
+                category: .aiResponseMalformedJSON,
+                message: "Invalid AI response format v2",
+                details: [
+                    "prompt": prompt,
+                    "response": completionObject.choices.first?.message.content ?? "No content"
+                ]
+            )
+            throw NSError(domain: "OpenAIError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"])
+        }
+        
+        print("📡 [Raw API Response] 原始JSON字串: \(jsonString)")
+        print("📡 [Raw API Response] JSON字串長度: \(jsonString.count)字符")
+        print("📡 [Raw API Response] ======== 結束原始API回覆 (DialogView) ========")
+
+        do {
+            let jsonResult = try JSONDecoder().decode(NameGenerationResultv2.self, from: jsonData)
+            
+            // 🔍 詳細的API回傳結果打印
+            print("✅ [API Response] JSON解析成功 (DialogView)")
+            print("📝 [API Response] 原始JSON數據: \(String(data: jsonData, encoding: .utf8) ?? "無法讀取")")
+            print("📝 [API Response] 生成的名字: '\(jsonResult.name)'")
+            print("📝 [API Response] 名字字數: \(jsonResult.name.count)")
+            print("📝 [API Response] 名字的每個字符: \(jsonResult.name.map { "'\($0)'" }.joined(separator: ", "))")
+            print("📝 [API Response] 字義分析: \(jsonResult.analysis.character_meaning)")
+            print("📝 [API Response] 典故來源: \(jsonResult.analysis.literary_allusion.source)")
+            print("📝 [API Response] 典故原文: \(jsonResult.analysis.literary_allusion.original_text)")
+            print("📝 [API Response] 典故釋義: \(jsonResult.analysis.literary_allusion.interpretation)")
+            print("📝 [API Response] 典故連結: \(jsonResult.analysis.literary_allusion.connection)")
+            print("📝 [API Response] 設計主軸分析: \(jsonResult.analysis.design_focus_analysis)")
+            print("📝 [API Response] 特殊需求分析: \(jsonResult.analysis.special_requirements_analysis)")
+            
+            // 獲取五行屬性
+            let elements = jsonResult.name.map { char in
+                CharacterManager.shared.getElement(for: String(char))
+            }
+            print("📝 [API Response] 五行屬性: \(elements)")
+            
+            // 構建分析字典 (兼容v1模板格式)
+            let analysisDict: [String: String] = [
+                "字義分析": jsonResult.analysis.character_meaning,
+                "典故分析": """
+                    出處：\(jsonResult.analysis.literary_allusion.source)
+                    原文：\(jsonResult.analysis.literary_allusion.original_text)
+                    釋義：\(jsonResult.analysis.literary_allusion.interpretation)
+                    連結：\(jsonResult.analysis.literary_allusion.connection)
+                    """,
+                "設計主軸分析": jsonResult.analysis.design_focus_analysis,
+                "特殊需求分析": jsonResult.analysis.special_requirements_analysis
+            ]
+
+            monitor.end("Response Processing v2")
+            
+            // 🔍 詳細的字數檢查邏輯打印
+            let expectedCharCount = formData.numberOfNames
+            let actualCharCount = jsonResult.name.count
+            
+            print("🔍 [Character Count Check] 開始字數檢查...")
+            print("🔍 [Character Count Check] formData.numberOfNames: \(formData.numberOfNames)")
+            print("🔍 [Character Count Check] expectedCharCount: \(expectedCharCount)")
+            print("🔍 [Character Count Check] actualCharCount: \(actualCharCount)")
+            print("🔍 [Character Count Check] 父親姓名: '\(formData.fatherName)'")
+            print("🔍 [Character Count Check] 母親姓名: '\(formData.motherName)'")
+            
+            // 修正字數檢查邏輯：根據單名/雙名正確計算期望總字數
+            let expectedTotalLength: Int
+            if formData.numberOfNames == 1 {
+                // 單名：姓氏(1-2字) + 名(1字) = 2-3字
+                expectedTotalLength = 2 // 最常見的情況：單姓+單名
+            } else {
+                // 雙名：姓氏(1-2字) + 名(2字) = 3-4字  
+                expectedTotalLength = 3 // 最常見的情況：單姓+雙名
+            }
+            
+            // 允許的字數範圍
+            let minLength = expectedTotalLength
+            let maxLength = expectedTotalLength + 1 // 允許複姓的情況
+            
+            print("🔍 [Character Count Check] 期望總長度: \(expectedTotalLength)")
+            print("🔍 [Character Count Check] 允許範圍: \(minLength)-\(maxLength)字")
+            print("🔍 [Character Count Check] 實際長度: \(actualCharCount)字")
+            print("🔍 [Character Count Check] 檢查結果: \(actualCharCount >= minLength && actualCharCount <= maxLength ? "✅ 通過" : "❌ 不通過")")
+            
+            if actualCharCount < minLength || actualCharCount > maxLength {
+                ErrorManager.shared.logError(
+                    category: .aiResponseWrongCharacterCount,
+                    message: "生成名字字數錯誤 v2",
+                    details: [
+                        "expected_range": "\(minLength)-\(maxLength)",
+                        "actual_count": "\(actualCharCount)",
+                        "generated_name": jsonResult.name,
+                        "father_name": formData.fatherName,
+                        "mother_name": formData.motherName,
+                        "number_of_names": "\(formData.numberOfNames)"
+                    ]
+                )
+                print("❌ [Character Count Check] 字數檢查失敗，拋出錯誤")
+                showCharCountError = true
+                generatedNameWithError = jsonResult.name
+                throw NameGenerationError.wrongCharacterCount(
+                    expected: formData.numberOfNames, // 傳遞實際要求的名字字數
+                    actual: actualCharCount - 1 // 減去姓氏字數，只計算名字部分
+                )
+            }
+            
+            print("✅ [Character Count Check] 字數檢查通過")
+            return (jsonResult.name, analysisDict, elements)
+            
+        } catch let decodingError as DecodingError {
+            // JSON 解析錯誤
+            ErrorManager.shared.logError(
+                category: .aiResponseMalformedJSON,
+                message: "Failed to decode AI response v2",
+                details: [
+                    "error": decodingError.localizedDescription,
+                    "json": String(data: jsonData, encoding: .utf8) ?? "Invalid JSON"
+                ]
+            )
+            throw decodingError
+            
+        } catch let networkError as URLError {
+            // 網路相關錯誤
+            let category: ErrorCategory = {
+                switch networkError.code {
+                case .timedOut:
+                    return .apiCallTimeout
+                case .notConnectedToInternet:
+                    return .apiCallNetworkError
+                default:
+                    return .apiCallNetworkError
+                }
+            }()
+            
+            ErrorManager.shared.logError(
+                category: category,
+                message: "API network error v2",
+                details: [
+                    "error_code": "\(networkError.code.rawValue)",
+                    "error_description": networkError.localizedDescription
+                ]
+            )
+            throw networkError
+            
+        } catch {
+            // 其他未預期的錯誤
+            ErrorManager.shared.logError(
+                category: .unknown,
+                message: "Unexpected error in AI response handling v2",
+                details: [
+                    "error": error.localizedDescription,
+                    "prompt": prompt
+                ]
+            )
+            throw error
+        }
+    }
+    
     private func handleAnswer(_ answer: String) {
         if answers.count > currentQuestionIndex {
             // 更新現有答案
@@ -2809,6 +3421,131 @@ struct DialogView: View {
         // 如果不是最後一題，自動前進到下一題
         if currentQuestionIndex < questions.count - 1 {
             currentQuestionIndex += 1
+        }
+    }
+    
+    // MARK: - 錯誤分類方法 (DialogView)
+    private func categorizeError(_ error: Error) -> String {
+        print("🔍 [Error Categorization] 開始分析錯誤... (DialogView)")
+        
+        // 1. 檢查是否是網路相關錯誤
+        if let urlError = error as? URLError {
+            print("🔍 [Error Categorization] 網路錯誤，代碼: \(urlError.code.rawValue)")
+            switch urlError.code {
+            case .notConnectedToInternet:
+                return "網路連線問題：請檢查您的網路連線並重試。"
+            case .timedOut:
+                return "請求逾時：伺服器回應時間過長，請稍後再試。"
+            case .cannotFindHost:
+                return "伺服器連線問題：無法連接到命名服務，請稍後再試。"
+            case .networkConnectionLost:
+                return "網路連線中斷：請檢查網路狀態並重試。"
+            default:
+                return "網路錯誤：\(urlError.localizedDescription)（錯誤代碼：\(urlError.code.rawValue)）"
+            }
+        }
+        
+        // 2. 檢查是否是JSON解析錯誤
+        if let decodingError = error as? DecodingError {
+            print("🔍 [Error Categorization] JSON解析錯誤")
+            switch decodingError {
+            case .keyNotFound(let key, _):
+                return "AI回應格式錯誤：缺少必要的欄位 '\(key.stringValue)'，請重試。"
+            case .typeMismatch(let type, _):
+                return "AI回應格式錯誤：資料類型不匹配 (\(type))，請重試。"
+            case .valueNotFound(let type, _):
+                return "AI回應資料損壞：找不到預期的 \(type) 值，請重試。"
+            case .dataCorrupted(_):
+                return "AI回應資料損壞：收到的資料無法解析，請重試。"
+            @unknown default:
+                return "AI回應解析失敗：\(decodingError.localizedDescription)"
+            }
+        }
+        
+        // 3. 檢查是否是名字生成相關錯誤
+        if let nameError = error as? NameGenerationError {
+            print("🔍 [Error Categorization] 名字生成錯誤")
+            switch nameError {
+            case .wrongCharacterCount(let expected, let actual):
+                return "生成的名字字數不符合要求：期望 \(expected) 字，實際生成 \(actual) 字。請重試。"
+            }
+        }
+        
+        // 4. 檢查是否是NSError並提供更詳細的訊息
+        if let nsError = error as NSError? {
+            print("🔍 [Error Categorization] NSError，域: \(nsError.domain)，代碼: \(nsError.code)")
+            
+            // SwiftOpenAI.APIError 特定處理
+            if nsError.domain == "SwiftOpenAI.APIError" {
+                switch nsError.code {
+                case 1:
+                    // 執行 API 金鑰診斷
+                    let diagnostic = self.diagnoseAPIKeyIssue()
+                    return "OpenAI API請求失敗：\(diagnostic)"
+                case 2:
+                    return "OpenAI API回應格式錯誤：收到的資料格式不正確，請重試。"
+                case 3:
+                    return "OpenAI API認證錯誤：API金鑰可能已過期或無效，請檢查API金鑰設定。"
+                default:
+                    return "OpenAI API錯誤：\(nsError.localizedDescription)（錯誤代碼：\(nsError.code)）"
+                }
+            }
+            
+            // 一般 OpenAI API 相關錯誤
+            if nsError.domain.contains("OpenAI") || nsError.domain.contains("API") {
+                switch nsError.code {
+                case 401:
+                    return "API認證失敗：請檢查API金鑰是否正確設定。"
+                case 429:
+                    return "API請求過於頻繁：請稍候片刻再試。"
+                case 500...599:
+                    return "伺服器內部錯誤：AI服務暫時不可用，請稍後再試。"
+                default:
+                    return "API呼叫失敗：\(nsError.localizedDescription)（錯誤代碼：\(nsError.code)）"
+                }
+            }
+            
+            // 其他NSError
+            return "系統錯誤：\(nsError.localizedDescription)（域：\(nsError.domain)，代碼：\(nsError.code)）"
+        }
+        
+        // 5. 未知錯誤
+        print("🔍 [Error Categorization] 未知錯誤類型: \(type(of: error))")
+        return "未知錯誤：\(error.localizedDescription)。請重試，如問題持續發生，請聯繫客服。"
+    }
+    
+    // MARK: - API金鑰診斷方法 (DialogView)
+    private func diagnoseAPIKeyIssue() -> String {
+        print("🔍 [API Diagnosis] 開始診斷API金鑰問題...")
+        
+        // 檢查 API 金鑰格式
+        do {
+            let apiKey = APIConfig.openAIKey
+            
+            // 基本格式檢查
+            if apiKey.isEmpty {
+                return "API金鑰為空。請在Config.plist中設定有效的OpenAI API金鑰。"
+            }
+            
+            if !apiKey.hasPrefix("sk-") {
+                return "API金鑰格式錯誤。OpenAI API金鑰應以'sk-'開頭。請檢查Config.plist中的設定。"
+            }
+            
+            if apiKey.count < 50 {
+                return "API金鑰長度不足。請確認Config.plist中的API金鑰是完整的。"
+            }
+            
+            // 檢查是否包含無效字符
+            let allowedCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_"))
+            if apiKey.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
+                return "API金鑰包含無效字符。請檢查Config.plist中是否有多餘的空格或特殊字符。"
+            }
+            
+            print("🔍 [API Diagnosis] API金鑰格式檢查通過")
+            return "可能是網路連線問題或OpenAI服務暫時不可用。請檢查網路連線後重試。"
+            
+        } catch {
+            return "無法讀取API金鑰配置。請確認Config.plist檔案存在且格式正確。"
         }
     }
 }
@@ -2851,6 +3588,19 @@ struct SituationalAnalysisMap: Codable {
         case four = "4"
         case five = "5"
     }
+}
+
+// MARK: - v2版本的結構體 (適用於新workflow)
+struct NameGenerationResultv2: Codable {
+    let name: String
+    let analysis: Analysisv2
+}
+
+struct Analysisv2: Codable {
+    let character_meaning: String
+    let literary_allusion: LiteraryAllusion // 重用現有的LiteraryAllusion結構體
+    let design_focus_analysis: String
+    let special_requirements_analysis: String
 }
 
 // Add this struct at the end of the file
@@ -2977,13 +3727,15 @@ struct NameAnalysisView: View {
 
 
 
-    private var analysisSection: some View {
+        private var analysisSection: some View {
         VStack(spacing: 20) {
             characterAnalysisCard
                 .frame(maxWidth: .infinity)
             literaryAllusionCard
                 .frame(maxWidth: .infinity)
-            situationalAnalysisCard
+            designFocusAnalysisCard
+                .frame(maxWidth: .infinity)
+            specialRequirementsAnalysisCard
                 .frame(maxWidth: .infinity)
         }
     }
@@ -3002,12 +3754,17 @@ struct NameAnalysisView: View {
         }
     }
 
-    private var situationalAnalysisCard: some View {
-        AnalysisCard(title: "情境契合度") {
-            if let situationalContent = analysis["情境分析"] {
-                situationalAnalysisContent(content: situationalContent)
-                    .frame(maxWidth: .infinity)
-            }
+    private var designFocusAnalysisCard: some View {
+        AnalysisCard(title: "設計主軸") {
+            analysisContent(for: "設計主軸分析")
+                .frame(maxWidth: .infinity)
+        }
+    }
+    
+    private var specialRequirementsAnalysisCard: some View {
+        AnalysisCard(title: "特殊需求") {
+            analysisContent(for: "特殊需求分析")
+                .frame(maxWidth: .infinity)
         }
     }
 
@@ -3025,20 +3782,7 @@ struct NameAnalysisView: View {
         }
     }
 
-    private func situationalAnalysisContent(content: String) -> some View {
-        let questionsArray = content.split(separator: "Q")
-        return ForEach(questionsArray.indices, id: \.self) { index in
-            if index >= 0 {
-                VStack {
-                    if index > 0 {
-                        Divider()
-                            .padding(.vertical, 10)
-                    }
-                    SituationalQuestionView(question: "Q" + questionsArray[index])
-                }
-            }
-        }
-    }
+
 
     private var loadingOverlay: some View {
         Group {
@@ -3728,33 +4472,7 @@ struct FavoritesListView: View {
 }
 
 
-struct SituationalQuestionView: View {
-    let question: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            let parts = question.split(separator: "\n", omittingEmptySubsequences: false)
-            if parts.count >= 3 {
-                Text(String(parts[0].trimmingCharacters(in: .whitespaces))) // Q1, Q2, etc.
-                    .font(.custom("NotoSansTC-Black", size: 22))
-                    .foregroundColor(.customAccent)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Text(String(parts[1].trimmingCharacters(in: .whitespaces))) // Answer
-                    .font(.custom("NotoSansTC-Regular", size: 20))
-                    .foregroundColor(.customText)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                Text(String(parts[2].trimmingCharacters(in: .whitespaces))) // Analysis
-                    .font(.custom("NotoSansTC-Regular", size: 20))
-                    .foregroundColor(.customText)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 5)
-            }
-        }
-        .padding(.vertical, 10)
-    }
-}
+// SituationalQuestionView 已被移除，因為新workflow不再使用情境分析
 
 // Add this extension for custom corner radius
 extension View {
@@ -5090,4 +5808,1274 @@ private func calculateFontSize(for characterCount: Int) -> CGFloat {
         case 4: return 36 // 四個字再縮小
         default: return 32 // 其他情況使用最小字體
     }
+}
+
+enum NameGenerationError: Error {
+    case wrongCharacterCount(expected: Int, actual: Int)
+}
+
+// MARK: - DesignFocusView
+
+struct DesignFocusView: View {
+    @Binding var navigationPath: NavigationPath
+    let formData: FormData
+    @State private var selectedOptions: Set<String> = []
+    @State private var customDescription: String = ""
+    @State private var showHelpDialog = false
+    @Environment(\.colorScheme) var colorScheme
+    
+    private let designOptions = [
+        "對孩子的期許與祝福",
+        "孩子與父母的連結",
+        "引經據典/名人典故"
+    ]
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Background
+                Image("background")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
+                
+                // Main content
+                VStack(spacing: 0) {
+                    // Scrollable content
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            // Header section
+                            headerSection
+                            
+                            // Design focus question
+                            designFocusSection
+                            
+                            // Custom description section
+                            customDescriptionSection
+
+                            bottomButton
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 120) // Space for bottom button
+                    }
+                    
+                    // Bottom button
+                    
+                }
+            }
+            .designFocusNavigationBarSetup(navigationPath: $navigationPath, title: "設計主軸")
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .sheet(isPresented: $showHelpDialog) {
+            helpDialogView
+        }
+    }
+    
+    private var headerSection: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image("main_mascot")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 100, height: 100)
+            
+            VStack(alignment: .leading) {
+                Text("讓我們了解您希望的\n名字設計方向")
+                    .font(.custom("NotoSansTC-Regular", size: 18))
+                    .foregroundColor(.black)
+                    .padding(12)
+                    .background(Color.white)
+                    .cornerRadius(15)
+                    .overlay(
+                        DesignFocusTriangle()
+                            .fill(Color.white)
+                            .frame(width: 20, height: 20)
+                            .rotationEffect(.degrees(-90))
+                            .offset(x: -15, y: 10)
+                        , alignment: .topLeading
+                    )
+            }
+        }
+        .padding(.top, 20)
+    }
+    
+    private var designFocusSection: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            HStack {
+                Text("您想要以什麼樣的主軸來設計孩子的名字？(可複選)")
+                    .font(.custom("NotoSansTC-Regular", size: 16))
+                    .foregroundColor(.customText)
+                
+                Spacer()
+                
+                // Help button
+                Button(action: {
+                    showHelpDialog = true
+                }) {
+                    Image(systemName: "questionmark.circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(.customAccent)
+                }
+            }
+            .padding(.leading, 5)
+            
+            // Design options
+            VStack(spacing: 12) {
+                ForEach(designOptions, id: \.self) { option in
+                    Button(action: {
+                        toggleOption(option)
+                    }) {
+                        HStack {
+                            Image(systemName: selectedOptions.contains(option) ? "checkmark.square.fill" : "square")
+                                .font(.system(size: 20))
+                                .foregroundColor(selectedOptions.contains(option) ? .customAccent : .gray)
+                            
+                            Text(option)
+                                .font(.custom("NotoSansTC-Regular", size: 16))
+                                .foregroundColor(.customText)
+                                .multilineTextAlignment(.leading)
+                            
+                            Spacer()
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(selectedOptions.contains(option) ? Color.customAccent.opacity(0.1) : Color.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(selectedOptions.contains(option) ? Color.customAccent : Color.gray.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    private var customDescriptionSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("請盡量詳細描述您想要的設計主軸")
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customText)
+                .padding(.leading, 5)
+            
+            Text("(開放式填寫，非必填)")
+                .font(.custom("NotoSansTC-Regular", size: 14))
+                .foregroundColor(.gray)
+                .padding(.leading, 5)
+            
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(Color.customAccent, lineWidth: 1)
+                    )
+                    .frame(height: 120)
+                
+                if customDescription.isEmpty {
+                    Text("例如：希望孩子具有謙虛的美德、未來事業成功...")
+                        .font(.custom("NotoSansTC-Regular", size: 14))
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                }
+                
+                TextEditor(text: $customDescription)
+                    .font(.custom("NotoSansTC-Regular", size: 16))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.clear)
+                    .scrollContentBackground(.hidden)
+            }
+        }
+    }
+    
+    private var bottomButton: some View {
+        VStack {
+            Button(action: {
+                hideKeyboard()
+                proceedToNext()
+            }) {
+                Text("下一步")
+                    .font(.custom("NotoSansTC-Black", size: 18))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(selectedOptions.isEmpty ? Color.gray : Color(hex: "#FF798C"))
+                    .cornerRadius(25)
+            }
+            .disabled(selectedOptions.isEmpty)
+            .padding(.horizontal)
+            .padding(.bottom, 20)
+        }
+        .background(
+            Color.white.opacity(0.95)
+                .blur(radius: 10)
+                .edgesIgnoringSafeArea(.bottom)
+        )
+        .ignoresSafeArea(.keyboard)
+    }
+    
+    private var helpDialogView: some View {
+        NavigationView {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("設計主軸說明")
+                    .font(.custom("NotoSansTC-Black", size: 24))
+                    .foregroundColor(.customText)
+                    .padding(.bottom, 10)
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 15) {
+                        exampleSection(
+                            title: "1. 對孩子的期許與祝福",
+                            description: "希望孩子具有謙虛的美德、未來事業成功、當醫生...等。"
+                        )
+                        
+                        exampleSection(
+                            title: "2. 孩子與父母的連結",
+                            description: "孩子從父姓，母親姓羅，取孩子中間名「維」，將母親姓氏一部分放到孩子的名字中，加強與母家的連結。"
+                        )
+                        
+                        exampleSection(
+                            title: "3. 引經據典/名人典故",
+                            description: "取「德馨」二字寓意世界雖如陋室一般不堪，但願能因孩子的高尚品德仍芳香一隅。另外，也希望孩子個性開朗，如黎明般帶給父母希望，將「馨」字改為同音字「昕」，最後命名為【德昕】"
+                        )
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("設計主軸範例")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(
+                trailing: Button("關閉") {
+                    showHelpDialog = false
+                }
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customAccent)
+            )
+        }
+    }
+    
+    private func exampleSection(title: String, description: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.custom("NotoSansTC-Black", size: 18))
+                .foregroundColor(.customAccent)
+            
+            Text(description)
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customText)
+                .padding()
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(10)
+        }
+    }
+    
+    private func toggleOption(_ option: String) {
+        if selectedOptions.contains(option) {
+            selectedOptions.remove(option)
+        } else {
+            selectedOptions.insert(option)
+        }
+    }
+    
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                      to: nil, from: nil, for: nil)
+    }
+    
+    private func proceedToNext() {
+        // Create design focus data
+        let designFocusData = DesignFocusData(
+            selectedOptions: Array(selectedOptions),
+            customDescription: customDescription.isEmpty ? nil : customDescription
+        )
+        
+        // Combine form data and design focus data
+        let formWithDesignData = FormWithDesignData(
+            formData: formData,
+            designFocusData: designFocusData
+        )
+        
+        // Navigate to Special Requirements view
+        navigationPath.append(formWithDesignData)
+    }
+}
+
+// Helper struct for Triangle shape (speech bubble) - renamed to avoid conflicts
+struct DesignFocusTriangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
+        return path
+    }
+}
+
+// Extension for navigation bar setup (specific to DesignFocusView)
+private extension View {
+    func designFocusNavigationBarSetup(navigationPath: Binding<NavigationPath>, title: String) -> some View {
+        self
+            .navigationBarTitle(title, displayMode: .inline)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        navigationPath.wrappedValue.removeLast()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                    }
+                }
+                ToolbarItem(placement: .principal) {
+                    Text(title)
+                        .font(.custom("NotoSansTC-Black", size: 20))
+                        .foregroundColor(.white)
+                }
+            }
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .navigationBarBackButtonHidden(true)
+            .navigationBarTitleDisplayMode(.inline)
+            .overlay(
+                Color.pink.frame(height: 5)
+                    .edgesIgnoringSafeArea(.horizontal)
+                    .offset(y: 0)
+                , alignment: .top
+            )
+    }
+}
+
+// MARK: - SpecialRequirementView
+
+struct SpecialRequirementView: View {
+    @Binding var navigationPath: NavigationPath
+    let formWithDesignData: FormWithDesignData
+    @Binding var selectedTab: Int
+    @State private var selectedRequirements: Set<String> = []
+    @State private var detailDescription: String = ""
+    @State private var showHelpDialog = false
+    @Environment(\.colorScheme) var colorScheme
+    
+    // 名字分析結果的狀態
+    @State private var generatedName: String?
+    @State private var nameAnalysis: [String: String]?
+    @State private var wuxing: [String]?
+    
+    // 新增生成相關的狀態變數
+    @State private var isGeneratingName = false
+    @State private var isGenerating = false
+    @State private var errorMessage: String?
+    @State private var showCharCountError = false
+    @State private var generatedNameWithError: String = ""
+    
+    // 使用管理器
+    private let usageManager = UsageManager.shared
+    
+    private let requirementOptions = [
+        "字音",
+        "字形", 
+        "偏旁部首",
+        "筆劃"
+    ]
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Background
+                Image("background")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
+                
+                // Main content
+                if let generatedName = generatedName, let nameAnalysis = nameAnalysis, let wuxing = wuxing {
+                    // Result view - 直接顯示結果頁面
+                    NameAnalysisView(
+                        name: generatedName,
+                        analysis: nameAnalysis,
+                        wuxing: wuxing,
+                        navigationPath: $navigationPath,
+                        selectedTab: $selectedTab,
+                        regenerateAction: {
+                            // 重新生成時回到表單
+                            self.generatedName = nil
+                            self.nameAnalysis = nil
+                            self.wuxing = nil
+                        },
+                        showButtons: true
+                    )
+                } else if isGeneratingName {
+                    // Loading view - 顯示生成等待頁面（參考 DialogView 樣式）
+                    VStack {
+                        ProgressView("生成時間約三十秒")
+                            .scaleEffect(1.5)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if let errorMessage = errorMessage {
+                    // Error view - 錯誤顯示頁面（參考 DialogView 樣式）
+                    VStack {
+                        Text("生成名字失敗")
+                            .font(.custom("NotoSansTC-Black", size: 24))
+                            .foregroundColor(.red)
+                            .padding()
+                    
+                        Text(errorMessage)
+                            .font(.custom("NotoSansTC-Regular", size: 18))
+                            .foregroundColor(.customText)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                        
+                        // Only show retry button if user has remaining uses
+                        if usageManager.remainingUses > 0 {
+                            Button("重試") {
+                                self.errorMessage = nil
+                                // 重新開始生成流程
+                                let specialRequirementData = SpecialRequirementData(
+                                    selectedRequirements: Array(selectedRequirements),
+                                    detailDescription: detailDescription.isEmpty ? nil : detailDescription
+                                )
+                                generateNamev2(
+                                    formData: formWithDesignData.formData,
+                                    designFocusData: formWithDesignData.designFocusData,
+                                    specialRequirementData: specialRequirementData
+                                )
+                            }
+                            .font(.custom("NotoSansTC-Regular", size: 18))
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(.customAccent)
+                            .cornerRadius(10)
+                        } else {
+                            Text("您的使用次數已用完，請升級會員或明天再來！")
+                                .font(.custom("NotoSansTC-Regular", size: 16))
+                                .foregroundColor(.customText)
+                                .multilineTextAlignment(.center)
+                                .padding()
+                            
+                            Button("返回首頁") {
+                                navigationPath.removeLast(navigationPath.count)
+                                selectedTab = 0
+                            }
+                            .font(.custom("NotoSansTC-Regular", size: 18))
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(.gray)
+                            .cornerRadius(10)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    // Form view - 顯示特殊需求表單
+                    VStack(spacing: 0) {
+                        // Scrollable content
+                        ScrollView {
+                            VStack(spacing: 20) {
+                                // Header section
+                                headerSection
+                                
+                                // Special requirements question
+                                specialRequirementSection
+                                
+                                // Detail description section
+                                detailDescriptionSection
+                                
+                                // Bottom button
+                                bottomButton
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.bottom, 120) // Space for bottom button
+                        }
+                    }
+                }
+            }
+            .designFocusNavigationBarSetup(navigationPath: $navigationPath, title: "特殊需求")
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .sheet(isPresented: $showHelpDialog) {
+            helpDialogView
+        }
+    }
+    
+    private var headerSection: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image("main_mascot")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 100, height: 100)
+            
+            VStack(alignment: .leading) {
+                Text("讓我們了解您對孩子\n名字的特殊需求")
+                    .font(.custom("NotoSansTC-Regular", size: 18))
+                    .foregroundColor(.black)
+                    .padding(12)
+                    .background(Color.white)
+                    .cornerRadius(15)
+                    .overlay(
+                        DesignFocusTriangle()
+                            .fill(Color.white)
+                            .frame(width: 20, height: 20)
+                            .rotationEffect(.degrees(-90))
+                            .offset(x: -15, y: 10)
+                        , alignment: .topLeading
+                    )
+            }
+        }
+        .padding(.top, 20)
+    }
+    
+    private var specialRequirementSection: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            HStack {
+                Text("您是否對於孩子的名字有特殊的需求？(可複選)")
+                    .font(.custom("NotoSansTC-Regular", size: 16))
+                    .foregroundColor(.customText)
+                
+                Spacer()
+                
+                // Help button
+                Button(action: {
+                    showHelpDialog = true
+                }) {
+                    Image(systemName: "questionmark.circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(.customAccent)
+                }
+            }
+            .padding(.leading, 5)
+            
+            // Requirement options
+            VStack(spacing: 12) {
+                ForEach(requirementOptions, id: \.self) { option in
+                    Button(action: {
+                        toggleRequirement(option)
+                    }) {
+                        HStack {
+                            Image(systemName: selectedRequirements.contains(option) ? "checkmark.square.fill" : "square")
+                                .font(.system(size: 20))
+                                .foregroundColor(selectedRequirements.contains(option) ? .customAccent : .gray)
+                            
+                            Text(option)
+                                .font(.custom("NotoSansTC-Regular", size: 16))
+                                .foregroundColor(.customText)
+                                .multilineTextAlignment(.leading)
+                            
+                            Spacer()
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(selectedRequirements.contains(option) ? Color.customAccent.opacity(0.1) : Color.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(selectedRequirements.contains(option) ? Color.customAccent : Color.gray.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    private var detailDescriptionSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("請盡量詳細描述您的特殊需求")
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customText)
+                .padding(.leading, 5)
+            
+            Text("(開放式填寫框，非必填)")
+                .font(.custom("NotoSansTC-Regular", size: 14))
+                .foregroundColor(.gray)
+                .padding(.leading, 5)
+            
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 15)
+                            .stroke(Color.customAccent, lineWidth: 1)
+                    )
+                    .frame(height: 120)
+                
+                if detailDescription.isEmpty {
+                    Text("例如：希望中間字有「ㄋ/N」的音，並且是二聲；希望能包含一個打勾的字(亅)...")
+                        .font(.custom("NotoSansTC-Regular", size: 14))
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                }
+                
+                TextEditor(text: $detailDescription)
+                    .font(.custom("NotoSansTC-Regular", size: 16))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.clear)
+                    .scrollContentBackground(.hidden)
+            }
+        }
+    }
+    
+    private var bottomButton: some View {
+        VStack {
+            Button(action: {
+                hideKeyboard()
+                proceedToNext()
+            }) {
+                Text("開始命名")
+                    .font(.custom("NotoSansTC-Black", size: 18))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color(hex: "#FF798C"))
+                    .cornerRadius(25)
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 20)
+        }
+        .background(
+            Color.white.opacity(0.95)
+                .blur(radius: 10)
+                .edgesIgnoringSafeArea(.bottom)
+        )
+        .ignoresSafeArea(.keyboard)
+    }
+    
+    private var helpDialogView: some View {
+        NavigationView {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("特殊需求說明")
+                    .font(.custom("NotoSansTC-Black", size: 24))
+                    .foregroundColor(.customText)
+                    .padding(.bottom, 10)
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 15) {
+                        exampleSection(
+                            title: "1. 字音",
+                            description: "希望中間字有「ㄋ/N」的音，並且是二聲"
+                        )
+                        
+                        exampleSection(
+                            title: "2. 字形",
+                            description: "希望能包含一個打勾的字(亅)，如：「丁」「寧」"
+                        )
+                        
+                        exampleSection(
+                            title: "3. 偏旁部首",
+                            description: "希望有「木」字旁，如：「檸」"
+                        )
+                        
+                        exampleSection(
+                            title: "4. 筆劃",
+                            description: "希望不要超過10劃or希望介於10~15劃之間"
+                        )
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("特殊需求範例")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(
+                trailing: Button("關閉") {
+                    showHelpDialog = false
+                }
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customAccent)
+            )
+        }
+    }
+    
+    private func exampleSection(title: String, description: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.custom("NotoSansTC-Black", size: 18))
+                .foregroundColor(.customAccent)
+            
+            Text(description)
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customText)
+                .padding()
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(10)
+        }
+    }
+    
+    private func toggleRequirement(_ requirement: String) {
+        if selectedRequirements.contains(requirement) {
+            selectedRequirements.remove(requirement)
+        } else {
+            selectedRequirements.insert(requirement)
+        }
+    }
+    
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                      to: nil, from: nil, for: nil)
+    }
+    
+    private func proceedToNext() {
+        // 創建特殊需求資料
+        let specialRequirementData = SpecialRequirementData(
+            selectedRequirements: Array(selectedRequirements),
+            detailDescription: detailDescription.isEmpty ? nil : detailDescription
+        )
+        
+        // 調用 generateNamev2 方法生成名字
+        generateNamev2(
+            formData: formWithDesignData.formData,
+            designFocusData: formWithDesignData.designFocusData,
+            specialRequirementData: specialRequirementData
+        )
+    }
+    
+    // MARK: - 名字生成v2方法 (適用於SpecialRequirementView)
+    private func generateNamev2(
+        formData: FormData,
+        designFocusData: DesignFocusData, 
+        specialRequirementData: SpecialRequirementData?
+    ) {
+        // Add a guard to prevent multiple generations
+        let monitor = PerformanceMonitor.shared
+        monitor.reset()
+        monitor.start("Total Generation Time v2")
+        
+        guard !isGenerating else { return }
+        
+        print("\n=== 開始生成名字流程 v2 (SpecialRequirementView) ===")
+        monitor.start("Usage Check")
+        print("📱 [Generate v2] 開始生成名字請求")
+        print("📊 [Uses] 生成前剩餘次數: \(usageManager.remainingUses)")
+        
+        // Check remaining uses before generating
+        if usageManager.remainingUses <= 0 {
+            monitor.end("Usage Check")
+            print("❌ [Generate v2] 使用次數不足，無法生成")
+            errorMessage = "很抱歉，您的免費使用次數已用完。"
+            return
+        }
+        monitor.end("Usage Check")
+        
+        // Set generating flag
+        isGenerating = true
+        
+        // Deduct one use
+        usageManager.remainingUses -= 1
+        print("📊 [Uses] 扣除一次使用機會")
+        print("📊 [Uses] 當前剩餘次數: \(usageManager.remainingUses)")
+
+        // 更新雲端資料
+        Task {
+            try? await usageManager.updateCloudData()
+        }
+        
+        monitor.start("UI Update - Loading")
+        isGeneratingName = true
+        errorMessage = nil
+        monitor.end("UI Update - Loading")
+
+        // Prepare the prompt for the AI model using v2 method
+        monitor.start("Prompt Preparation v2")
+        let prompt = preparePromptv2(
+            formData: formData,
+            designFocusData: designFocusData,
+            specialRequirementData: specialRequirementData
+        )
+        monitor.end("Prompt Preparation v2")
+
+        // Call the OpenAI API to generate the name
+        Task {
+            do {
+                print("🤖 [API v2] 開始調用 OpenAI API")
+                monitor.start("API Call v2")
+                print("📝 [Prompt v2] 調用 OpenAI API 的 prompt: \(prompt)")
+                let (name, analysis, wuxing) = try await callOpenAIAPIv2(
+                    with: prompt, 
+                    formData: formData
+                )
+                monitor.end("API Call v2")
+                print("✅ [API v2] API 調用成功")
+                print("📝 [Result v2] 生成的名字: \(name)")
+                
+                await MainActor.run {
+                    monitor.start("UI Update - Results v2")
+                    self.generatedName = name
+                    self.nameAnalysis = analysis
+                    self.wuxing = wuxing
+                    self.isGeneratingName = false
+                    self.isGenerating = false
+                    monitor.end("UI Update - Results v2")
+                    
+                    print("✅ [Generate v2] 名字生成流程完成")
+                    monitor.end("Total Generation Time v2")
+                    monitor.printSummary()
+                    print("=== 生成名字流程結束 v2 ===\n")
+                }
+            } catch {
+                await MainActor.run {
+                    monitor.start("Error Handling v2")
+                    self.isGeneratingName = false
+                    self.isGenerating = false
+                    // 使用詳細的錯誤分類
+                    let detailedErrorMessage = self.categorizeError(error)
+                    self.errorMessage = detailedErrorMessage
+                    monitor.end("Error Handling v2")
+                    
+                    // 詳細的錯誤日誌
+                    print("❌ [Generate v2] 名字生成流程失敗")
+                    print("🔍 [Error Details] 錯誤類型: \(type(of: error))")
+                    print("🔍 [Error Details] 錯誤描述: \(error.localizedDescription)")
+                    if let nsError = error as NSError? {
+                        print("🔍 [Error Details] 錯誤代碼: \(nsError.code)")
+                        print("🔍 [Error Details] 錯誤域: \(nsError.domain)")
+                        print("🔍 [Error Details] 用戶信息: \(nsError.userInfo)")
+                    }
+                    print("🔍 [Error Details] 用戶看到的錯誤訊息: \(detailedErrorMessage)")
+                    monitor.end("Total Generation Time v2")
+                    monitor.printSummary()
+                    print("=== 生成名字流程結束 v2 ===\n")
+                }
+            }
+        }
+    }
+    
+    // MARK: - 錯誤分類方法
+    private func categorizeError(_ error: Error) -> String {
+        print("🔍 [Error Categorization] 開始分析錯誤...")
+        
+        // 1. 檢查是否是網路相關錯誤
+        if let urlError = error as? URLError {
+            print("🔍 [Error Categorization] 網路錯誤，代碼: \(urlError.code.rawValue)")
+            switch urlError.code {
+            case .notConnectedToInternet:
+                return "網路連線問題：請檢查您的網路連線並重試。"
+            case .timedOut:
+                return "請求逾時：伺服器回應時間過長，請稍後再試。"
+            case .cannotFindHost:
+                return "伺服器連線問題：無法連接到命名服務，請稍後再試。"
+            case .networkConnectionLost:
+                return "網路連線中斷：請檢查網路狀態並重試。"
+            default:
+                return "網路錯誤：\(urlError.localizedDescription)（錯誤代碼：\(urlError.code.rawValue)）"
+            }
+        }
+        
+        // 2. 檢查是否是JSON解析錯誤
+        if let decodingError = error as? DecodingError {
+            print("🔍 [Error Categorization] JSON解析錯誤")
+            switch decodingError {
+            case .keyNotFound(let key, _):
+                return "AI回應格式錯誤：缺少必要的欄位 '\(key.stringValue)'，請重試。"
+            case .typeMismatch(let type, _):
+                return "AI回應格式錯誤：資料類型不匹配 (\(type))，請重試。"
+            case .valueNotFound(let type, _):
+                return "AI回應格式錯誤：找不到預期的 \(type) 值，請重試。"
+            case .dataCorrupted(_):
+                return "AI回應資料損壞：收到的資料無法解析，請重試。"
+            @unknown default:
+                return "AI回應解析失敗：\(decodingError.localizedDescription)"
+            }
+        }
+        
+        // 3. 檢查是否是名字生成相關錯誤
+        if let nameError = error as? NameGenerationError {
+            print("🔍 [Error Categorization] 名字生成錯誤")
+            switch nameError {
+            case .wrongCharacterCount(let expected, let actual):
+                return "生成的名字字數不符合要求：期望 \(expected) 字，實際生成 \(actual) 字。請重試。"
+            }
+        }
+        
+        // 4. 檢查是否是NSError並提供更詳細的訊息
+        if let nsError = error as NSError? {
+            print("🔍 [Error Categorization] NSError，域: \(nsError.domain)，代碼: \(nsError.code)")
+            
+            // SwiftOpenAI.APIError 特定處理
+            if nsError.domain == "SwiftOpenAI.APIError" {
+                switch nsError.code {
+                case 1:
+                    // 執行 API 金鑰診斷
+                    let diagnostic = self.diagnoseAPIKeyIssue()
+                    return "OpenAI API請求失敗：\(diagnostic)"
+                case 2:
+                    return "OpenAI API回應格式錯誤：收到的資料格式不正確，請重試。"
+                case 3:
+                    return "OpenAI API認證錯誤：API金鑰可能已過期或無效，請檢查API金鑰設定。"
+                default:
+                    return "OpenAI API錯誤：\(nsError.localizedDescription)（錯誤代碼：\(nsError.code)）"
+                }
+            }
+            
+            // 一般 OpenAI API 相關錯誤
+            if nsError.domain.contains("OpenAI") || nsError.domain.contains("API") {
+                switch nsError.code {
+                case 401:
+                    return "API認證失敗：請檢查API金鑰是否正確設定。"
+                case 429:
+                    return "API請求過於頻繁：請稍候片刻再試。"
+                case 500...599:
+                    return "伺服器內部錯誤：AI服務暫時不可用，請稍後再試。"
+                default:
+                    return "API呼叫失敗：\(nsError.localizedDescription)（錯誤代碼：\(nsError.code)）"
+                }
+            }
+            
+            // 其他NSError
+            return "系統錯誤：\(nsError.localizedDescription)（域：\(nsError.domain)，代碼：\(nsError.code)）"
+        }
+        
+        // 5. 未知錯誤
+        print("🔍 [Error Categorization] 未知錯誤類型: \(type(of: error))")
+        return "未知錯誤：\(error.localizedDescription)。請重試，如問題持續發生，請聯繫客服。"
+    }
+    
+    // MARK: - API金鑰診斷方法 (SpecialRequirementView)
+    private func diagnoseAPIKeyIssue() -> String {
+        print("🔍 [API Diagnosis] 開始診斷API金鑰問題... (SpecialRequirementView)")
+        
+        // 檢查 API 金鑰格式
+        do {
+            let apiKey = APIConfig.openAIKey
+            
+            // 基本格式檢查
+            if apiKey.isEmpty {
+                return "API金鑰為空。請在Config.plist中設定有效的OpenAI API金鑰。"
+            }
+            
+            if !apiKey.hasPrefix("sk-") {
+                return "API金鑰格式錯誤。OpenAI API金鑰應以'sk-'開頭。請檢查Config.plist中的設定。"
+            }
+            
+            if apiKey.count < 50 {
+                return "API金鑰長度不足。請確認Config.plist中的API金鑰是完整的。"
+            }
+            
+            // 檢查是否包含無效字符
+            let allowedCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_"))
+            if apiKey.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
+                return "API金鑰包含無效字符。請檢查Config.plist中是否有多餘的空格或特殊字符。"
+            }
+            
+            print("🔍 [API Diagnosis] API金鑰格式檢查通過 (SpecialRequirementView)")
+            return "可能是網路連線問題或OpenAI服務暫時不可用。請檢查網路連線後重試。"
+            
+        } catch {
+            return "無法讀取API金鑰配置。請確認Config.plist檔案存在且格式正確。"
+        }
+    }
+    
+    // MARK: - 輔助方法 - preparePromptv2 (適用於SpecialRequirementView)
+    private func preparePromptv2(
+        formData: FormData, 
+        designFocusData: DesignFocusData, 
+        specialRequirementData: SpecialRequirementData?
+    ) -> String {
+        
+        // 1. 基本資料部分
+        var formDataString = """
+        爸爸姓名: \(formData.fatherName)
+        媽媽姓名: \(formData.motherName)
+        姓氏選擇: \(formData.surnameChoice)
+        """
+        
+        // 只有非空的中間字才加入
+        if !formData.middleName.isEmpty {
+            formDataString += "\n指定中間字: \(formData.middleName)"
+        }
+        
+        formDataString += """
+        
+        單/雙名: \(formData.numberOfNames == 1 ? "單名" : "雙名")
+        性別: \(formData.gender)
+        """
+        
+        // 2. 設計主軸部分
+        var designFocusString = ""
+        if !designFocusData.selectedOptions.isEmpty {
+            designFocusString = """
+            
+            設計主軸:
+            \(designFocusData.selectedOptions.map { "- \($0)" }.joined(separator: "\n"))
+            """
+        }
+        
+        // 如果有自定義描述，則加入
+        if let customDescription = designFocusData.customDescription, !customDescription.isEmpty {
+            if designFocusString.isEmpty {
+                designFocusString = "\n設計主軸:"
+            }
+            designFocusString += "\n- 自定義描述: \(customDescription)"
+        }
+        
+        // 3. 特殊需求部分
+        var specialRequirementString = ""
+        if let specialRequirementData = specialRequirementData {
+            if !specialRequirementData.selectedRequirements.isEmpty {
+                specialRequirementString = """
+                
+                特殊需求:
+                \(specialRequirementData.selectedRequirements.map { "- \($0)" }.joined(separator: "\n"))
+                """
+            }
+            
+            // 如果有詳細描述，則加入
+            if let detailDescription = specialRequirementData.detailDescription, !detailDescription.isEmpty {
+                if specialRequirementString.isEmpty {
+                    specialRequirementString = "\n特殊需求:"
+                }
+                specialRequirementString += "\n- 詳細說明: \(detailDescription)"
+            }
+        }
+        
+        // 4. 組合完整的表單資料
+        let completeFormData = formDataString + designFocusString + specialRequirementString
+        
+        // 5. 使用專門為新workflow設計的模板
+        let template = """
+        請根據以下表單資料為嬰兒生成中文名字：
+
+        命名要求：
+        1. 名字為單名或雙名，務必確保與基本資料中的單雙名一致。
+        2. 如有指定中間字，須包含於名中。
+        3. 名字符合嬰兒性別。
+        4. 典故來源於具體內容不可僅引用篇名。
+        5. 典故與名字有明確聯繫，並詳述其關係。
+        6. 根據設計主軸提供分析，說明名字如何體現設計理念。
+        7. 根據特殊需求提供分析，說明名字如何滿足特殊要求。
+        
+        注意事項：
+        1. 請確保輸出格式符合JSON規範。
+        2. 所有字串值使用雙引號，並適當使用轉義字符。
+        3. 請使用繁體中文，禁止使用簡體中文。
+
+        基本資料：{{formData}}
+        """
+        
+        print("🔄 [Prompts] 使用新workflow專用模板v2 (SpecialRequirementView): \(template)")
+        print("📝 [FormData] 完整表單資料v2 (SpecialRequirementView): \(completeFormData)")
+        
+        // 6. 將資料填入模板
+        return template.replacingOccurrences(of: "{{formData}}", with: completeFormData)
+    }
+    
+    // MARK: - API調用方法v2 (適用於SpecialRequirementView)
+    private func callOpenAIAPIv2(with prompt: String, formData: FormData) async throws -> (String, [String: String], [String]) {
+        let monitor = PerformanceMonitor.shared
+        
+        monitor.start("API Setup v2 (SpecialRequirementView)")
+        let apiKey = APIConfig.openAIKey
+        let service = OpenAIServiceFactory.service(apiKey: apiKey)
+        monitor.end("API Setup v2 (SpecialRequirementView)")
+
+        // 1. 定義典故分析的 Schema
+        let literaryAllusionSchema = JSONSchema(
+            type: .object,
+            properties: [
+                "source": JSONSchema(type: .string),
+                "original_text": JSONSchema(type: .string),
+                "interpretation": JSONSchema(type: .string),
+                "connection": JSONSchema(type: .string)
+            ],
+            required: ["source", "original_text", "interpretation", "connection"],
+            additionalProperties: false
+        )
+
+        // 2. 定義分析的 Schema (簡化版，不包含情境分析)
+        let analysisSchema = JSONSchema(
+            type: .object,
+            properties: [
+                "character_meaning": JSONSchema(type: .string),
+                "literary_allusion": literaryAllusionSchema,
+                "design_focus_analysis": JSONSchema(type: .string),
+                "special_requirements_analysis": JSONSchema(type: .string)
+            ],
+            required: ["character_meaning", "literary_allusion", "design_focus_analysis", "special_requirements_analysis"],
+            additionalProperties: false
+        )
+
+        // 3. 定義回應格式的 Schema
+        let responseFormatSchema = JSONSchemaResponseFormat(
+            name: "name_generation_v2",
+            strict: true,
+            schema: JSONSchema(
+                type: .object,
+                properties: [
+                    "name": JSONSchema(type: .string),
+                    "analysis": analysisSchema
+                ],
+                required: ["name", "analysis"],
+                additionalProperties: false
+            )
+        )
+
+        let messages: [ChatCompletionParameters.Message] = [
+            .init(role: .system, content: .text(PromptManager.shared.getSystemPrompt())),
+            .init(role: .user, content: .text(prompt))
+        ]
+
+        let parameters = ChatCompletionParameters(
+            messages: messages,
+            model: .gpt4omini,
+            responseFormat: .jsonSchema(responseFormatSchema)
+        )
+
+        monitor.start("API Request Preparation v2 (SpecialRequirementView)")
+        let completionObject = try await service.startChat(parameters: parameters)
+        monitor.end("API Request Preparation v2 (SpecialRequirementView)")
+        
+        monitor.start("Response Processing v2 (SpecialRequirementView)")
+        
+        // 🔍 打印完整的原始API回覆
+        print("📡 [Raw API Response] ======== 開始原始API回覆 ========")
+        print("📡 [Raw API Response] 完整completionObject: \(completionObject)")
+        print("📡 [Raw API Response] choices數量: \(completionObject.choices.count)")
+        
+        if let firstChoice = completionObject.choices.first {
+            print("📡 [Raw API Response] 第一個choice的message: \(firstChoice.message)")
+            print("📡 [Raw API Response] message.role: \(firstChoice.message.role)")
+            print("📡 [Raw API Response] message.content: \(firstChoice.message.content ?? "nil")")
+        }
+        
+        guard let jsonString = completionObject.choices.first?.message.content,
+              let jsonData = jsonString.data(using: .utf8) else {
+            print("❌ [Raw API Response] 無法獲取有效的JSON回應")
+            print("📡 [Raw API Response] ======== 結束原始API回覆 ========")
+            ErrorManager.shared.logError(
+                category: .aiResponseMalformedJSON,
+                message: "Invalid AI response format v2 (SpecialRequirementView)",
+                details: [
+                    "prompt": prompt,
+                    "response": completionObject.choices.first?.message.content ?? "No content"
+                ]
+            )
+            throw NSError(domain: "OpenAIError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"])
+        }
+        
+        print("📡 [Raw API Response] 原始JSON字串: \(jsonString)")
+        print("📡 [Raw API Response] JSON字串長度: \(jsonString.count)字符")
+        print("📡 [Raw API Response] ======== 結束原始API回覆 ========")
+
+        do {
+            let jsonResult = try JSONDecoder().decode(NameGenerationResultv2.self, from: jsonData)
+            
+            // 🔍 詳細的API回傳結果打印
+            print("✅ [API Response] JSON解析成功 (SpecialRequirementView)")
+            print("📝 [API Response] 原始JSON數據: \(String(data: jsonData, encoding: .utf8) ?? "無法讀取")")
+            print("📝 [API Response] 生成的名字: '\(jsonResult.name)'")
+            print("📝 [API Response] 名字字數: \(jsonResult.name.count)")
+            print("📝 [API Response] 名字的每個字符: \(jsonResult.name.map { "'\($0)'" }.joined(separator: ", "))")
+            print("📝 [API Response] 字義分析: \(jsonResult.analysis.character_meaning)")
+            print("📝 [API Response] 典故來源: \(jsonResult.analysis.literary_allusion.source)")
+            print("📝 [API Response] 典故原文: \(jsonResult.analysis.literary_allusion.original_text)")
+            print("📝 [API Response] 典故釋義: \(jsonResult.analysis.literary_allusion.interpretation)")
+            print("📝 [API Response] 典故連結: \(jsonResult.analysis.literary_allusion.connection)")
+            print("📝 [API Response] 設計主軸分析: \(jsonResult.analysis.design_focus_analysis)")
+            print("📝 [API Response] 特殊需求分析: \(jsonResult.analysis.special_requirements_analysis)")
+            
+            // 獲取五行屬性
+            let elements = jsonResult.name.map { char in
+                CharacterManager.shared.getElement(for: String(char))
+            }
+            
+            // 構建分析字典 (兼容v1模板格式)
+            let analysisDict: [String: String] = [
+                "字義分析": jsonResult.analysis.character_meaning,
+                "典故分析": """
+                    出處：\(jsonResult.analysis.literary_allusion.source)
+                    原文：\(jsonResult.analysis.literary_allusion.original_text)
+                    釋義：\(jsonResult.analysis.literary_allusion.interpretation)
+                    連結：\(jsonResult.analysis.literary_allusion.connection)
+                    """,
+                "設計主軸分析": jsonResult.analysis.design_focus_analysis,
+                "特殊需求分析": jsonResult.analysis.special_requirements_analysis
+            ]
+
+            monitor.end("Response Processing v2 (SpecialRequirementView)")
+            
+            // Add character count validation
+            let expectedCharCount = formData.numberOfNames
+            let actualCharCount = jsonResult.name.count
+            
+            // 合理的名字長度範圍：單名 2-3 字，雙名 3-4 字
+            let minLength = formData.numberOfNames + 1  // 至少需要姓氏 + 指定字數
+            let maxLength = formData.numberOfNames + 2  // 最多姓氏 2 字 + 指定字數
+            
+            if actualCharCount < minLength || actualCharCount > maxLength {
+                ErrorManager.shared.logError(
+                    category: .aiResponseWrongCharacterCount,
+                    message: "生成名字字數錯誤 v2 (SpecialRequirementView)",
+                    details: [
+                        "expected_range": "\(minLength)-\(maxLength)",
+                        "actual_count": "\(actualCharCount)",
+                        "generated_name": jsonResult.name,
+                        "father_name": formData.fatherName,
+                        "mother_name": formData.motherName
+                    ]
+                )
+                showCharCountError = true
+                generatedNameWithError = jsonResult.name
+                throw NameGenerationError.wrongCharacterCount(
+                    expected: expectedCharCount,
+                    actual: actualCharCount
+                )
+            }
+            
+            return (jsonResult.name, analysisDict, elements)
+            
+        } catch let decodingError as DecodingError {
+            // JSON 解析錯誤
+            ErrorManager.shared.logError(
+                category: .aiResponseMalformedJSON,
+                message: "Failed to decode AI response v2 (SpecialRequirementView)",
+                details: [
+                    "error": decodingError.localizedDescription,
+                    "json": String(data: jsonData, encoding: .utf8) ?? "Invalid JSON"
+                ]
+            )
+            throw decodingError
+            
+        } catch let networkError as URLError {
+            // 網路相關錯誤
+            let category: ErrorCategory = {
+                switch networkError.code {
+                case .timedOut:
+                    return .apiCallTimeout
+                case .notConnectedToInternet:
+                    return .apiCallNetworkError
+                default:
+                    return .apiCallNetworkError
+                }
+            }()
+            
+            ErrorManager.shared.logError(
+                category: category,
+                message: "API network error v2 (SpecialRequirementView)",
+                details: [
+                    "error_code": "\(networkError.code.rawValue)",
+                    "error_description": networkError.localizedDescription
+                ]
+            )
+            throw networkError
+            
+        } catch {
+            // 其他未預期的錯誤
+            ErrorManager.shared.logError(
+                category: .unknown,
+                message: "Unexpected error in AI response handling v2 (SpecialRequirementView)",
+                details: [
+                    "error": error.localizedDescription,
+                    "prompt": prompt
+                ]
+            )
+            throw error
+        }
+    }
+
 }

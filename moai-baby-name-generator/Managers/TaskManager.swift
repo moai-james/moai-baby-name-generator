@@ -6,15 +6,11 @@ class TaskManager: ObservableObject {
     static let shared = TaskManager()
     
     @Published private(set) var missions: [MissionItem] = []
-    private let defaults = UserDefaults.standard
-    private let lastLoginDateKey = "lastLoginDate"
-    private let lastResetDateKey = "lastResetDate"
     private let db = Firestore.firestore()
     private var timer: Timer?
     
     private init() {
         setupDefaultMissions()
-        checkDailyReset()
         setupMidnightTimer()
     }
     
@@ -86,63 +82,83 @@ class TaskManager: ObservableObject {
     
     // 從 Firebase 同步任務狀態
     func syncMissionsFromFirebase() async {
-        guard let userId = Auth.auth().currentUser?.uid else { return }
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("🚫 [Missions] 無法同步：用戶未登入")
+            return
+        }
+        
+        print("🔄 [Missions] 開始從 Firestore 同步任務狀態 - 用戶ID: \(userId)")
         
         do {
             let document = try await db.collection("users").document(userId).getDocument()
-            guard let data = document.data()?["missions"] as? [String: [String: Any]] else {
-                print("⚠️ 未找到任務資料")
-                return
-            }
+            print("📄 [Missions] 成功獲取文檔")
             
-            var updatedMissions = missions
-            
-            // 從 Firebase 更新任務狀態
-            for (missionId, missionData) in data {
-                if let index = updatedMissions.firstIndex(where: { $0.id == missionId }) {
-                    updatedMissions[index].isCompleted = missionData["isCompleted"] as? Bool ?? false
-                    
-                    // 檢查 rewardClaimedAt 時間戳記
-                    if let rewardClaimedAt = missionData["rewardClaimedAt"] as? Timestamp {
-                        let taiwanTimeZone = TimeZone(identifier: "Asia/Taipei")!
-                        var calendar = Calendar(identifier: .gregorian)
-                        calendar.timeZone = taiwanTimeZone
-                        
-                        // 如果 rewardClaimedAt 是今天，則設為已領取
-                        // 如果是昨天或更早，則設為未領取
-                        updatedMissions[index].isRewardClaimed = calendar.isDateInToday(rewardClaimedAt.dateValue())
-                    } else {
-                        updatedMissions[index].isRewardClaimed = false
-                    }
-                    
-                    print("✅ 已同步任務: \(missionId)")
-                    print("完成狀態: \(updatedMissions[index].isCompleted)")
-                    print("獎勵領取狀態: \(updatedMissions[index].isRewardClaimed)")
-                    
-                    // 更新本地緩存
-                    defaults.set(updatedMissions[index].isCompleted, 
-                               forKey: "mission_\(missionId)_completed")
-                    defaults.set(updatedMissions[index].isRewardClaimed, 
-                               forKey: "mission_\(missionId)_claimed")
-                }
-            }
+            let data = document.data()?["missions"] as? [String: [String: Any]] ?? [:]
+            print("📊 [Missions] 獲取到的原始數據: \(data)")
             
             await MainActor.run {
-                self.missions = updatedMissions
-                sortMissions()
-                print("✅ 任務排序完成")
+                print("🔄 [Missions] 開始重置本地任務狀態")
+                // 重置所有任務狀態為未完成和未領取
+                for i in 0..<missions.count {
+                    let oldState = "完成:\(missions[i].isCompleted), 領取:\(missions[i].isRewardClaimed)"
+                    missions[i].isCompleted = false
+                    missions[i].isRewardClaimed = false
+                    print("🔄 [Missions] 重置任務 \(missions[i].id) - 原狀態: \(oldState) -> 新狀態: 完成:false, 領取:false")
+                }
                 
-                // 在同步完成後檢查所有任務狀態
-                checkAllMissionStates()
-                print("✅ 已檢查所有任務狀態")
+                print("📥 [Missions] 開始更新任務狀態")
+                // 從 Firebase 更新任務狀態
+                for (missionId, missionData) in data {
+                    if let index = missions.firstIndex(where: { $0.id == missionId }) {
+                        let oldState = "完成:\(missions[index].isCompleted), 領取:\(missions[index].isRewardClaimed)"
+                        
+                        missions[index].isCompleted = missionData["isCompleted"] as? Bool ?? false
+                        
+                        // 檢查 rewardClaimedAt 時間戳記
+                        if let rewardClaimedAt = missionData["rewardClaimedAt"] as? Timestamp {
+                            let taiwanTimeZone = TimeZone(identifier: "Asia/Taipei")!
+                            var calendar = Calendar(identifier: .gregorian)
+                            calendar.timeZone = taiwanTimeZone
+                            
+                            // 如果 rewardClaimedAt 是今天，則設為已領取
+                            missions[index].isRewardClaimed = calendar.isDateInToday(rewardClaimedAt.dateValue())
+                            print("📅 [Missions] 檢查獎勵領取時間 - 任務:\(missionId), 領取時間:\(rewardClaimedAt.dateValue()), 是今天:\(calendar.isDateInToday(rewardClaimedAt.dateValue()))")
+                        } else {
+                            missions[index].isRewardClaimed = false
+                            print("⚠️ [Missions] 任務 \(missionId) 無領取時間記錄")
+                        }
+                        
+                        print("✏️ [Missions] 更新任務 \(missionId) - 原狀態: \(oldState) -> 新狀態: 完成:\(missions[index].isCompleted), 領取:\(missions[index].isRewardClaimed)")
+                    }
+                }
+                
+                print("🔄 [Missions] 開始排序任務")
+                self.sortMissions()
+                print("✅ [Missions] 排序完成")
+                
+                print("🔍 [Missions] 開始檢查所有任務狀態")
+                self.checkAllMissionStates()
+                print("✅ [Missions] 任務狀態檢查完成")
+                
+                // 打印最終狀態
+                print("📊 [Missions] 最終任務狀態:")
+                for mission in self.missions {
+                    print("- \(mission.id): 完成:\(mission.isCompleted), 領取:\(mission.isRewardClaimed)")
+                }
             }
-            
         } catch {
-            print("❌ 從 Firebase 同步任務失敗: \(error.localizedDescription)")
+            print("❌ [Missions] 從 Firebase 同步任務失敗: \(error.localizedDescription)")
         }
     }
+    
     private func syncMissionToFirestore(_ mission: MissionItem) {
-        guard let userId = Auth.auth().currentUser?.uid else { return }
+        guard let userId = Auth.auth().currentUser?.uid else {
+            print("🚫 [Missions] 無法同步到 Firestore：用戶未登入")
+            return
+        }
+        
+        print("📤 [Missions] 開始同步任務到 Firestore - 用戶ID: \(userId), 任務ID: \(mission.id)")
+        print("📊 [Missions] 任務狀態 - 完成:\(mission.isCompleted), 領取:\(mission.isRewardClaimed)")
         
         let missionData: [String: Any] = [
             "isCompleted": mission.isCompleted,
@@ -152,19 +168,21 @@ class TaskManager: ObservableObject {
             "type": mission.type.rawValue
         ]
         
-        // 使用 FieldValue.arrayUnion 來更新 missions 欄位
         db.collection("users").document(userId).setData([
             "missions": [
                 mission.id: missionData
             ]
         ], merge: true) { error in
             if let error = error {
-                print("❌ 同步任務到 Firebase 失敗: \(error.localizedDescription)")
+                print("❌ [Missions] 同步任務到 Firebase 失敗: \(error.localizedDescription)")
+            } else {
+                print("✅ [Missions] 成功同步任務到 Firestore")
             }
         }
     }
     
     private func setupDefaultMissions() {
+        print("📝 [Missions] 創建默認任務列表")
         missions = [
             MissionItem(id: "daily_login",
                      title: "每日登入",
@@ -199,52 +217,19 @@ class TaskManager: ObservableObject {
                      type: .appRating)
         ]
         
-        // 先從本地加載緩存的狀態
-        loadMissionStates()
+        print("✅ [Missions] 默認任務列表創建完成，共 \(missions.count) 個任務")
         
         // 如果用戶已登入，從 Firebase 同步最新狀態
         if Auth.auth().currentUser != nil {
             Task {
-                print("✅ syncMissionsFromFirebase")
                 await syncMissionsFromFirebase()
             }
         }
     }
     
-    private func loadMissionStates() {
-        // 檢查是否是首次加載（是否有任何任務狀態記錄）
-        let isFirstLoad = !defaults.bool(forKey: "hasInitializedMissions")
-        print("🔄 Loading mission states - First load: \(isFirstLoad)")
-        
-        if isFirstLoad {
-            // 首次加載，設置初始狀態
-            print("📝 First time loading - Initializing default mission states")
-            for mission in missions {
-                defaults.set(false, forKey: "mission_\(mission.id)_completed")
-                defaults.set(false, forKey: "mission_\(mission.id)_claimed")
-                print("✨ Setting initial state for mission: \(mission.id)")
-            }
-            defaults.set(true, forKey: "hasInitializedMissions")
-        } else {
-            // 從 UserDefaults 加載已保存的狀態
-            print("📖 Loading saved mission states from UserDefaults")
-            for i in 0..<missions.count {
-                let isCompleted = defaults.bool(forKey: "mission_\(missions[i].id)_completed")
-                let isRewardClaimed = defaults.bool(forKey: "mission_\(missions[i].id)_claimed")
-                missions[i].isCompleted = isCompleted
-                missions[i].isRewardClaimed = isRewardClaimed
-                print("📊 Mission \(missions[i].id) - Completed: \(isCompleted), Claimed: \(isRewardClaimed)")
-            }
-        }
-        
-        // 將已完成且已領取獎勵的任務排到最後
-        print("🔀 Sorting missions based on completion and claim status")
-        sortMissions()
-    }
-    
+    // 修改 saveMissionState 方法，只同步到 Firestore
     private func saveMissionState(_ mission: MissionItem) {
-        defaults.set(mission.isCompleted, forKey: "mission_\(mission.id)_completed")
-        defaults.set(mission.isRewardClaimed, forKey: "mission_\(mission.id)_claimed")
+        syncMissionToFirestore(mission)
     }
     
     private func sortMissions() {
@@ -266,7 +251,7 @@ class TaskManager: ObservableObject {
                 print("✅ 上次登入時間: \(lastLoginTime)")
             }
 
-            // make sure dialy login mission is completed
+            // make sure daily login mission is completed
             completeDailyLoginMission()
 
             // if lastLoginTime is not today, set rewardClaimed to false
@@ -275,8 +260,10 @@ class TaskManager: ObservableObject {
             calendar.timeZone = taiwanTimeZone
             
             if let lastLoginTime = lastLoginTime, !calendar.isDateInToday(lastLoginTime) {
-                missions[0].isRewardClaimed = false
-                saveMissionState(missions[0])
+                if let index = missions.firstIndex(where: { $0.type == .dailyLogin }) {
+                    missions[index].isRewardClaimed = false
+                    saveMissionState(missions[index])
+                }
             }
         }
     }
@@ -286,25 +273,24 @@ class TaskManager: ObservableObject {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = taiwanTimeZone
         
-        let now = Date()
-        
-        // 檢查上次重置時間
-        if let lastResetDate = defaults.object(forKey: lastResetDateKey) as? Date {
-            if !calendar.isDate(lastResetDate, inSameDayAs: now) {
+        // 使用 Firebase Auth 的 lastSignInDate 來檢查是否需要重置
+        if let user = Auth.auth().currentUser,
+           let lastLoginTime = user.metadata.lastSignInDate {
+            let now = Date()
+            
+            if !calendar.isDateInToday(lastLoginTime) {
                 resetDailyMissionsRewardState() // 只重置獎勵領取狀態
             }
-        }
-        
-        // 更新重置時間
-        defaults.set(now, forKey: lastResetDateKey)
-        
-        // 檢查今日是否已完成登入任務
-        if let lastLoginDate = defaults.object(forKey: lastLoginDateKey) as? Date {
-            if calendar.isDate(lastLoginDate, inSameDayAs: now) {
+            
+            // 檢查今日是否已完成登入任務
+            if calendar.isDateInToday(lastLoginTime) {
                 completeDailyLoginMission()
+            } else {
+                // 如果沒有上次登入記錄，直接完成任務
+                completeDailyLoginWithoutCheck()
             }
         } else {
-            // 如果沒有上次登入記錄，直接完成任務
+            // 如果沒有用戶登入資訊，直接完成任務
             completeDailyLoginWithoutCheck()
         }
     }
@@ -336,10 +322,6 @@ class TaskManager: ObservableObject {
         if let index = missions.firstIndex(where: { $0.type == type }) {
             missions[index].isCompleted = true
             saveMissionState(missions[index])
-            
-            if type == .dailyLogin {
-                defaults.set(Date(), forKey: lastLoginDateKey)
-            }
             
             syncMissionToFirestore(missions[index])
             sortMissions()
@@ -431,7 +413,6 @@ class TaskManager: ObservableObject {
     
     // 檢查 App Store 評分任務
     private func checkAppRatingMission() {
-        // 從 UserDefaults 檢查是否已經評分
         if UserDefaults.standard.bool(forKey: "hasRatedApp") && !isMissionCompleted(.appRating) {
             completeMission(.appRating)
         } else {
@@ -440,42 +421,50 @@ class TaskManager: ObservableObject {
         }
     }
     
-    // 新增：重置並重新初始化任務
+    // 修改 resetAndSetupMissions 方法
     func resetAndSetupMissions() {
-        // 停止現有的計時器
+        print("🔄 [Missions] 開始重置任務狀態")
         timer?.invalidate()
-        
-        // 清空現有任務
         missions = []
         
-        // 重新設置任務
-        print("✅ resetAndSetupMissions")
+        // 設置默認任務
+        print("📝 [Missions] 設置默認任務")
         setupDefaultMissions()
-
-        print("✅ 任務已重置並重新初始化")
-        print(missions)
+        
+        // 如果用戶已登入，立即從 Firebase 同步最新狀態
+        if let userId = Auth.auth().currentUser?.uid {
+            print("👤 [Missions] 用戶已登入 (ID: \(userId))，開始同步 Firestore 狀態")
+            Task {
+                await syncMissionsFromFirebase()
+            }
+        } else {
+            print("⚠️ [Missions] 用戶未登入，使用默認任務狀態")
+        }
     }
     
     func uncompleteMission(_ type: MissionItem.MissionType) {
         if let index = missions.firstIndex(where: { $0.type == type }) {
-            // 只有在任務已完成但尚未領取獎勵時才能取消完成
             guard missions[index].isCompleted && !missions[index].isRewardClaimed else {
                 return
             }
             
             missions[index].isCompleted = false
             saveMissionState(missions[index])
-            syncMissionToFirestore(missions[index])
             sortMissions()
-            
-            print("✅ 已取消完成任務: \(type.rawValue)")
         }
     }
     
     func unclaimReward(_ type: MissionItem.MissionType) {
         if let index = missions.firstIndex(where: { $0.type == type }) {
             missions[index].isRewardClaimed = false
+            saveMissionState(missions[index])
+            sortMissions()
         }
-        sortMissions()
+    }
+    
+    private func saveMissionStates() {
+        for mission in missions {
+            saveMissionState(mission)
+        }
     }
 } 

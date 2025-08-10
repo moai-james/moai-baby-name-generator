@@ -13,6 +13,7 @@ import GoogleMobileAds
 import FirebaseAppCheck
 import UserNotifications
 import FirebaseMessaging
+import FirebaseAnalytics
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
@@ -22,6 +23,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // Initialize Firebase first
     FirebaseApp.configure()
     print("✅ Firebase 初始化完成")
+    
+    // Track app install if first launch
+    trackAppInstallIfNeeded()
     
     // Then configure App Check
     AppCheckManager.shared.configureAppCheck()
@@ -77,6 +81,24 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // 處理註冊失敗
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         print("無法註冊遠端通知: \(error.localizedDescription)")
+    }
+
+    private func trackAppInstallIfNeeded() {
+        let userDefaults = UserDefaults.standard
+        let isFirstLaunch = !userDefaults.bool(forKey: "HasLaunchedBefore")
+        
+        if isFirstLaunch {
+            Analytics.logEvent("app_install", parameters: [
+                "device_model": UIDevice.current.model,
+                "os_version": UIDevice.current.systemVersion,
+                "app_version": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+            ])
+            
+            userDefaults.set(true, forKey: "HasLaunchedBefore")
+            userDefaults.synchronize()
+            
+            print("📊 已記錄 app_install 事件")
+        }
     }
 }
 

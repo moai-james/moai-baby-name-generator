@@ -57,10 +57,9 @@ class AuthViewModel: ObservableObject {
                 await MainActor.run {
                     self.isLoggedIn = true
                     
-                    // 檢查所有任務狀態
-                    // TaskManager.shared.checkAllMissionStates()
-                    // print("✅ resetAndSetupMissions")
-                    // TaskManager.shared.resetAndSetupMissions()
+                    // 重置任務狀態並從 Firestore 同步
+                    print("🔄 [Auth] 開始重置並同步任務狀態")
+                    TaskManager.shared.resetAndSetupMissions()
                 }
             } catch {
                 print("❌ 登入後同步資料失敗: \(error.localizedDescription)")

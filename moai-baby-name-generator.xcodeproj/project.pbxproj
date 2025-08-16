@@ -26,7 +26,6 @@
 		457BBE152CD620F20013E275 /* src.txt in Resources */ = {isa = PBXBuildFile; fileRef = 457BBE142CD620F20013E275 /* src.txt */; };
 		457BBE172CD6649B0013E275 /* SwiftOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 457BBE162CD6649B0013E275 /* SwiftOpenAI */; };
 		45830FA32CE219CC00753CAE /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FA22CE219CC00753CAE /* FirebaseAnalytics */; };
-		45830FA52CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FA42CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion */; };
 		45830FA72CE219CC00753CAE /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FA62CE219CC00753CAE /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		45830FA92CE219CC00753CAE /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FA82CE219CC00753CAE /* FirebaseAppCheck */; };
 		45830FAB2CE219CC00753CAE /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = 45830FAA2CE219CC00753CAE /* FirebaseAppDistribution-Beta */; };
@@ -56,6 +55,8 @@
 		45D15D4C2CDCDA67000AA2DD /* products.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 45D15D4B2CDCDA67000AA2DD /* products.storekit */; };
 		45DABAE92CF566F2008C7FBE /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 45DABAE82CF566F2008C7FBE /* FirebaseMessaging */; };
 		45E16BBB2CDC87C300B9D57B /* IAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E16BBA2CDC87C000B9D57B /* IAPManager.swift */; };
+		C97597D62E5098E800DBCD5C /* AppleSignInCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C97597D52E5098E800DBCD5C /* AppleSignInCoordinator.swift */; };
+		C97597D82E50992800DBCD5C /* Question.swift in Sources */ = {isa = PBXBuildFile; fileRef = C97597D72E50992800DBCD5C /* Question.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -115,6 +116,8 @@
 		45D15D4B2CDCDA67000AA2DD /* products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = products.storekit; sourceTree = "<group>"; };
 		45D1D8892CB79676008F752A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		45E16BBA2CDC87C000B9D57B /* IAPManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPManager.swift; sourceTree = "<group>"; };
+		C97597D52E5098E800DBCD5C /* AppleSignInCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInCoordinator.swift; sourceTree = "<group>"; };
+		C97597D72E50992800DBCD5C /* Question.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Question.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,7 +136,6 @@
 				457BBE172CD6649B0013E275 /* SwiftOpenAI in Frameworks */,
 				4522E0A92CBBCC52003511A5 /* FirebaseCore in Frameworks */,
 				4522E0A12CBBCC26003511A5 /* GoogleSignIn in Frameworks */,
-				45830FA52CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				4522E0A72CBBCC44003511A5 /* FirebaseFirestore in Frameworks */,
 				45830FA32CE219CC00753CAE /* FirebaseAnalytics in Frameworks */,
 				457820B92D07EBB700BAD49D /* SwiftyGif in Frameworks */,
@@ -161,6 +163,7 @@
 			isa = PBXGroup;
 			children = (
 				4526C7BB2D393EA200D224B1 /* MissionItem.swift */,
+				C97597D72E50992800DBCD5C /* Question.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -240,6 +243,7 @@
 				45A263BE2D1845F6005D903D /* CharacterManager.swift */,
 				458407842CBA6A7500F9C299 /* Config.plist */,
 				458DCFE82CECD7E100FC9C57 /* AuthenticationManager.swift */,
+				C97597D52E5098E800DBCD5C /* AppleSignInCoordinator.swift */,
 				458407862CBA6AC100F9C299 /* Config.swift */,
 				45A4B4242CC78E05002640E7 /* NotoSansTC-Black.ttf */,
 				45A263C02D1845FC005D903D /* ErrorManager.swift */,
@@ -315,7 +319,6 @@
 				4576EEC72CD276330034D68F /* GoogleMobileAds */,
 				457BBE162CD6649B0013E275 /* SwiftOpenAI */,
 				45830FA22CE219CC00753CAE /* FirebaseAnalytics */,
-				45830FA42CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion */,
 				45830FA62CE219CC00753CAE /* FirebaseAnalyticsWithoutAdIdSupport */,
 				45830FA82CE219CC00753CAE /* FirebaseAppCheck */,
 				45830FAA2CE219CC00753CAE /* FirebaseAppDistribution-Beta */,
@@ -462,7 +465,9 @@
 				45C56C502CB6A42000D09C73 /* ContentView.swift in Sources */,
 				459DA8582CEE1FDC00CE6EC1 /* AppCheckManager.swift in Sources */,
 				45E16BBB2CDC87C300B9D57B /* IAPManager.swift in Sources */,
+				C97597D62E5098E800DBCD5C /* AppleSignInCoordinator.swift in Sources */,
 				459DA85A2CEE458800CE6EC1 /* VerificationCodeView.swift in Sources */,
+				C97597D82E50992800DBCD5C /* Question.swift in Sources */,
 				45AC74BC2D33D29A00C500DE /* SerialNumberInputView.swift in Sources */,
 				4526C7B82D393D5B00D224B1 /* TaskManager.swift in Sources */,
 				45A263C12D1845FC005D903D /* ErrorManager.swift in Sources */,
@@ -955,11 +960,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
-		};
-		45830FA42CE219CC00753CAE /* FirebaseAnalyticsOnDeviceConversion */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45D1D88A2CB7FA0D008F752A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalyticsOnDeviceConversion;
 		};
 		45830FA62CE219CC00753CAE /* FirebaseAnalyticsWithoutAdIdSupport */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -80,9 +80,18 @@ struct ContentView: View {
         .onAppear {
             checkExistingAuth()
             
-            // 更新提示詞模板
+            // 更新提示詞模板，加入錯誤處理
             Task {
-                await PromptManager.shared.updatePrompts()
+                do {
+                    await PromptManager.shared.updatePrompts()
+                } catch {
+                    print("❌ [ContentView] 更新提示詞模板失敗: \(error.localizedDescription)")
+                    ErrorManager.shared.logError(
+                        category: .unknown,
+                        message: "ContentView 啟動時更新提示詞模板失敗",
+                        details: ["error": error.localizedDescription]
+                    )
+                }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
@@ -429,7 +438,7 @@ struct LoginView: View {
         GIDSignIn.sharedInstance.configuration = config
         
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first,
+              let window = windowScene.keyWindow ?? windowScene.windows.first,
               let rootViewController = window.rootViewController else {
             isLoading = false  // 如果失敗要關閉 loading
             print("❌ 無法獲取 rootViewController")
@@ -776,9 +785,9 @@ struct MainView: View {
                         selectedTab = 2 
                     }
                     Spacer()
-                    TabBarButton(imageName: "setting_icon", isSelected: selectedTab == 3, badgeCount: taskManager.missions.filter { !$0.isRewardClaimed }.count) { 
+                    TabBarButton(imageName: "setting_icon", isSelected: selectedTab == 3, action: { 
                         selectedTab = 3 
-                    }
+                    }, badgeCount: taskManager.missions.filter { !$0.isRewardClaimed }.count)
                     // TabBarButton(imageName: "setting_icon", isSelected: selectedTab == 3, badgeCount: 0) { 
                     //     selectedTab = 3 
                     // }
@@ -1575,7 +1584,7 @@ struct MainView: View {
         GIDSignIn.sharedInstance.configuration = config
         
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first,
+              let window = windowScene.keyWindow ?? windowScene.windows.first,
               let rootViewController = window.rootViewController else {
             return
         }
@@ -1784,6 +1793,414 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
+}
+
+// Main Axis View - 主軸設計的下一步
+struct MainAxisView: View {
+    @Binding var navigationPath: NavigationPath
+    @Binding var selectedTab: Int
+    @Binding var isLoggedIn: Bool
+    @ObservedObject var authViewModel: AuthViewModel
+    @State private var selectedAxis = "五行"
+    @State private var selectedElement = "金"
+    @State private var selectedStyle = "古典"
+    @State private var selectedMeaning = "智慧"
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    @Environment(\.colorScheme) var colorScheme
+    
+    // 主軸選項配置
+    private let axisOptions = ["五行", "生肖", "星座", "季節", "方位"]
+    private let elementOptions = ["金", "木", "水", "火", "土"]
+    private let styleOptions = ["古典", "現代", "文雅", "活潑", "穩重"]
+    private let meaningOptions = ["智慧", "健康", "財富", "愛情", "事業", "家庭"]
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // 背景點擊手勢
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        hideKeyboard()
+                    }
+                
+                VStack(spacing: 0) {
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            // 主軸標題區域
+                            MainAxisHeaderView()
+                            
+                            // 主軸選擇區域
+                            MainAxisSelectionView(
+                                selectedAxis: $selectedAxis,
+                                axisOptions: axisOptions
+                            )
+                            
+                            // 元素選擇區域
+                            ElementSelectionView(
+                                selectedElement: $selectedElement,
+                                elementOptions: elementOptions,
+                                selectedAxis: selectedAxis
+                            )
+                            
+                            // 風格選擇區域
+                            StyleSelectionView(
+                                selectedStyle: $selectedStyle,
+                                styleOptions: styleOptions
+                            )
+                            
+                            // 寓意選擇區域
+                            MeaningSelectionView(
+                                selectedMeaning: $selectedMeaning,
+                                meaningOptions: meaningOptions
+                            )
+                            
+                            // 預覽區域
+                            PreviewSectionView(
+                                selectedAxis: selectedAxis,
+                                selectedElement: selectedElement,
+                                selectedStyle: selectedStyle,
+                                selectedMeaning: selectedMeaning
+                            )
+                        }
+                        .padding(.bottom, 120)
+                    }
+                    .scrollIndicators(.visible)
+                    
+                    // 底部按鈕
+                    BottomButtonView(action: proceedToNextStep)
+                }
+            }
+            .background(
+                Image("background")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
+            )
+            .navigationBarSetup(navigationPath: $navigationPath)
+            .alert("提示", isPresented: $showAlert) {
+                Button("確定", role: .cancel) { }
+            } message: {
+                Text(alertMessage)
+            }
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+    }
+    
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                       to: nil, from: nil, for: nil)
+    }
+    
+    private func proceedToNextStep() {
+        // 驗證選擇
+        if selectedAxis.isEmpty || selectedElement.isEmpty || selectedStyle.isEmpty || selectedMeaning.isEmpty {
+            alertMessage = "請完成所有主軸選擇"
+            showAlert = true
+            return
+        }
+        
+        // 創建主軸資料並導航到下一步
+        let axisData = MainAxisData(
+            axis: selectedAxis,
+            element: selectedElement,
+            style: selectedStyle,
+            meaning: selectedMeaning
+        )
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            navigationPath.append(axisData)
+        }
+    }
+}
+
+// 主軸標題區域
+private struct MainAxisHeaderView: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: 15) {
+            Image("main_mascot")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 120, height: 120)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("選擇命名主軸")
+                    .font(.custom("NotoSansTC-Black", size: 24))
+                    .foregroundColor(.customText)
+                    .bold()
+                
+                Text("為寶寶選擇命名的核心主題\n讓名字更有意義和特色")
+                    .font(.custom("NotoSansTC-Regular", size: 16))
+                    .foregroundColor(.customText)
+                    .lineLimit(2)
+                    .padding(15)
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(15)
+                    .overlay(
+                        Triangle()
+                            .fill(Color.white.opacity(0.9))
+                            .frame(width: 20, height: 20)
+                            .rotationEffect(.degrees(-90))
+                            .offset(x: -15, y: 15)
+                        , alignment: .topLeading
+                    )
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 20)
+    }
+}
+
+// 主軸選擇區域
+private struct MainAxisSelectionView: View {
+    @Binding var selectedAxis: String
+    let axisOptions: [String]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("主軸類型")
+                .font(.custom("NotoSansTC-Black", size: 18))
+                .foregroundColor(.customText)
+                .padding(.leading, 5)
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 12) {
+                ForEach(axisOptions, id: \.self) { option in
+                    Button(action: { 
+                        hideKeyboard()
+                        selectedAxis = option 
+                    }) {
+                        Text(option)
+                            .font(.custom("NotoSansTC-Regular", size: 16))
+                            .foregroundColor(selectedAxis == option ? .white : Color(hex: "#FF798C"))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(selectedAxis == option ? Color(hex: "#FF798C") : Color(hex: "#FFE5E9"))
+                            .cornerRadius(25)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color(hex: "#FF798C"), lineWidth: 1)
+                            )
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+    
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                       to: nil, from: nil, for: nil)
+    }
+}
+
+// 元素選擇區域
+private struct ElementSelectionView: View {
+    @Binding var selectedElement: String
+    let elementOptions: [String]
+    let selectedAxis: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("\(selectedAxis)元素")
+                .font(.custom("NotoSansTC-Black", size: 18))
+                .foregroundColor(.customText)
+                .padding(.leading, 5)
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 12) {
+                ForEach(elementOptions, id: \.self) { option in
+                    Button(action: { 
+                        hideKeyboard()
+                        selectedElement = option 
+                    }) {
+                        VStack(spacing: 4) {
+                            Text(option)
+                                .font(.custom("NotoSansTC-Black", size: 18))
+                                .foregroundColor(selectedElement == option ? .white : Color(hex: "#FF798C"))
+                            
+                            Text(getElementDescription(for: option))
+                                .font(.custom("NotoSansTC-Regular", size: 12))
+                                .foregroundColor(selectedElement == option ? .white.opacity(0.8) : Color(hex: "#FF798C").opacity(0.7))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 70)
+                        .background(selectedElement == option ? Color(hex: "#FF798C") : Color(hex: "#FFE5E9"))
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color(hex: "#FF798C"), lineWidth: 1)
+                        )
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+    
+    private func getElementDescription(for element: String) -> String {
+        switch element {
+        case "金": return "堅毅"
+        case "木": return "成長"
+        case "水": return "智慧"
+        case "火": return "熱情"
+        case "土": return "穩重"
+        default: return ""
+        }
+    }
+    
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                       to: nil, from: nil, for: nil)
+    }
+}
+
+// 風格選擇區域
+private struct StyleSelectionView: View {
+    @Binding var selectedStyle: String
+    let styleOptions: [String]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("命名風格")
+                .font(.custom("NotoSansTC-Black", size: 18))
+                .foregroundColor(.customText)
+                .padding(.leading, 5)
+            
+            HStack(spacing: 12) {
+                ForEach(styleOptions, id: \.self) { option in
+                    Button(action: { 
+                        hideKeyboard()
+                        selectedStyle = option 
+                    }) {
+                        Text(option)
+                            .font(.custom("NotoSansTC-Regular", size: 16))
+                            .foregroundColor(selectedStyle == option ? .white : Color(hex: "#FF798C"))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 45)
+                            .background(selectedStyle == option ? Color(hex: "#FF798C") : Color(hex: "#FFE5E9"))
+                            .cornerRadius(22.5)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 22.5)
+                                    .stroke(Color(hex: "#FF798C"), lineWidth: 1)
+                            )
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+    
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                       to: nil, from: nil, for: nil)
+    }
+}
+
+// 寓意選擇區域
+private struct MeaningSelectionView: View {
+    @Binding var selectedMeaning: String
+    let meaningOptions: [String]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("期望寓意")
+                .font(.custom("NotoSansTC-Black", size: 18))
+                .foregroundColor(.customText)
+                .padding(.leading, 5)
+            
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 12) {
+                ForEach(meaningOptions, id: \.self) { option in
+                    Button(action: { 
+                        hideKeyboard()
+                        selectedMeaning = option 
+                    }) {
+                        Text(option)
+                            .font(.custom("NotoSansTC-Regular", size: 16))
+                            .foregroundColor(selectedMeaning == option ? .white : Color(hex: "#FF798C"))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(selectedMeaning == option ? Color(hex: "#FF798C") : Color(hex: "#FFE5E9"))
+                            .cornerRadius(25)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color(hex: "#FF798C"), lineWidth: 1)
+                            )
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+    
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                       to: nil, from: nil, for: nil)
+    }
+}
+
+// 預覽區域
+private struct PreviewSectionView: View {
+    let selectedAxis: String
+    let selectedElement: String
+    let selectedStyle: String
+    let selectedMeaning: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            Text("選擇預覽")
+                .font(.custom("NotoSansTC-Black", size: 18))
+                .foregroundColor(.customText)
+                .padding(.leading, 5)
+            
+            VStack(spacing: 12) {
+                PreviewRow(title: "主軸類型", value: selectedAxis)
+                PreviewRow(title: "\(selectedAxis)元素", value: selectedElement)
+                PreviewRow(title: "命名風格", value: selectedStyle)
+                PreviewRow(title: "期望寓意", value: selectedMeaning)
+            }
+            .padding(20)
+            .background(Color.white.opacity(0.9))
+            .cornerRadius(20)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color(hex: "#FF798C"), lineWidth: 2)
+            )
+        }
+        .padding(.horizontal, 20)
+    }
+}
+
+// 預覽行
+private struct PreviewRow: View {
+    let title: String
+    let value: String
+    
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customText)
+                .frame(width: 80, alignment: .leading)
+            
+            Text(":")
+                .font(.custom("NotoSansTC-Regular", size: 16))
+                .foregroundColor(.customText)
+            
+            Text(value)
+                .font(.custom("NotoSansTC-Black", size: 16))
+                .foregroundColor(Color(hex: "#FF798C"))
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+// 主軸資料模型
+struct MainAxisData: Hashable {
+    let axis: String
+    let element: String
+    let style: String
+    let meaning: String
 }
 
 struct FormView: View {
@@ -3075,7 +3492,7 @@ struct DialogView: View {
                     釋義：\(jsonResult.analysis.literary_allusion.interpretation)
                     連結：\(jsonResult.analysis.literary_allusion.connection)
                     """,
-                "情境分析": zip(questions, answers).enumerated().map { index, qa in
+                "情境分析": Array(zip(questions, answers)).enumerated().map { index, qa in
                     let analysis = switch index {
                         case 0: jsonResult.analysis.situational_analysis.one.analysis
                         case 1: jsonResult.analysis.situational_analysis.two.analysis
@@ -4052,7 +4469,7 @@ struct NameAnalysisView: View {
         GIDSignIn.sharedInstance.configuration = config
         
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first,
+              let window = windowScene.keyWindow ?? windowScene.windows.first,
               let rootViewController = window.rootViewController else {
             self.isUpgrading = false
             self.upgradeErrorMessage = "無法初始化 Google 登入"
@@ -4651,7 +5068,9 @@ class RewardedViewModel: NSObject, ObservableObject, GADFullScreenContentDelegat
             return
         }
         
-        if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.keyWindow ?? windowScene.windows.first,
+           let rootViewController = window.rootViewController {
             rewardedAd.present(fromRootViewController: rootViewController) { [weak self] in
                 self?.usageManager.remainingUses += 3
                 
@@ -4667,16 +5086,20 @@ class RewardedViewModel: NSObject, ObservableObject, GADFullScreenContentDelegat
     
     // MARK: - GADFullScreenContentDelegate
     
-    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
-        isAdLoaded = false
-        updateCooldownStatus() // 廣告關閉時更新狀態
+    nonisolated func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        Task { @MainActor in
+            isAdLoaded = false
+            updateCooldownStatus() // 廣告關閉時更新狀態
+        }
     }
     
-    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+    nonisolated func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
         print("❌ [AdShow] 廣告展示失敗: \(error.localizedDescription)")
-        isAdLoaded = false
-        if canLoadAd() {
-            preloadNextAd()
+        Task { @MainActor in
+            isAdLoaded = false
+            if canLoadAd() {
+                preloadNextAd()
+            }
         }
     }
     
@@ -4857,19 +5280,21 @@ class InterstitialAdViewModel: NSObject, ObservableObject, GADFullScreenContentD
         }
         
         print("📱 [InterstitialAd] 開始展示廣告")
-        if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.keyWindow ?? windowScene.windows.first,
+           let rootViewController = window.rootViewController {
             interstitialAd.present(fromRootViewController: rootViewController)
         }
     }
     
     // MARK: - GADFullScreenContentDelegate
     
-    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+    nonisolated func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         print("📱 [InterstitialAd] 廣告關閉，開始預載下一個")
         loadAd()
     }
     
-    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+    nonisolated func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
         print("❌ [InterstitialAd] 廣告展示失敗: \(error.localizedDescription)")
         loadAd()
     }
@@ -5012,324 +5437,52 @@ struct CreateAccountView: View {
             }
         }
     }
-
-    #if DEBUG
-    @ObserveInjection var forceRedraw
-    #endif
     
+    // MARK: - CreateAccount Function
     private func createAccount() {
-        // 驗證輸入
-        guard !email.isEmpty, !password.isEmpty, !fullName.isEmpty else {
-            print("錯誤")
+        guard !email.isEmpty, !password.isEmpty, !confirmPassword.isEmpty else {
+            errorMessage = "請填寫所有必填欄位"
+            showError = true
             return
         }
         
         guard password == confirmPassword else {
-            print("錯誤")
+            errorMessage = "密碼確認不一致"
+            showError = true
             return
         }
         
-        // 建立帳號
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            if error != nil {
-                print("錯誤")
-                return
-            }
-            
-            if let user = result?.user {
-                // 更新用戶資
-                let changeRequest = user.createProfileChangeRequest()
-                changeRequest.displayName = fullName
-                changeRequest.commitChanges { error in
-                    if error != nil {
-                        print("錯誤")
-                    }
-                }
-                
-                // 儲存額外的用戶資訊到 Firestore
-                let db = Firestore.firestore()
-                db.collection("users").document(user.uid).setData([
-                    "fullName": fullName,
-                    "email": email,
-                    "createdAt": Date()
-                ]) { error in
-                    if error != nil {
-                        print("錯誤")
-                    }
-                }
-                
-                isLoggedIn = true
-                dismiss()
-            }
-        }
-    }
-}
-
-
-
-// Add Apple Sign In Coordinator
-class AppleSignInCoordinator: NSObject, ASAuthorizationControllerDelegate {
-    private var completion: ((Result<AuthDataResult, Error>) -> Void)?
-    private var currentNonce: String? // 添加 nonce 屬性
-    
-    // 生成隨機 nonce 的方法
-    private func randomNonceString(length: Int = 32) -> String {
-        precondition(length > 0)
-        let charset: [Character] =
-            Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
-        var result = ""
-        var remainingLength = length
-        
-        while remainingLength > 0 {
-            let randoms: [UInt8] = (0 ..< 16).map { _ in
-                var random: UInt8 = 0
-                let errorCode = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
-                if errorCode != errSecSuccess {
-                    fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
-                }
-                return random
-            }
-            
-            randoms.forEach { random in
-                if remainingLength == 0 {
-                    return
-                }
-                
-                if random < charset.count {
-                    result.append(charset[Int(random)])
-                    remainingLength -= 1
-                }
-            }
-        }
-        return result
-    }
-
-    // SHA256 雜湊函數
-    private func sha256(_ input: String) -> String {
-        let inputData = Data(input.utf8)
-        let hashedData = SHA256.hash(data: inputData)
-        let hashString = hashedData.compactMap {
-            String(format: "%02x", $0)
-        }.joined()
-        return hashString
-    }
-    
-    func startSignInWithAppleFlow(completion: @escaping (Result<AuthDataResult, Error>) -> Void) {
-        self.completion = completion
-        
-        // 生成 nonce
-        let nonce = randomNonceString()
-        currentNonce = nonce
-        let hashedNonce = sha256(nonce)
-        
-        let provider = ASAuthorizationAppleIDProvider()
-        let request = provider.createRequest()
-        request.requestedScopes = [.email, .fullName]
-        request.nonce = hashedNonce
-        
-        let controller = ASAuthorizationController(authorizationRequests: [request])
-        controller.delegate = self
-        controller.performRequests()
-    }
-    
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
-              let appleIDToken = appleIDCredential.identityToken,
-              let idTokenString = String(data: appleIDToken, encoding: .utf8),
-              let nonce = currentNonce else {
-            completion?(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Apple Sign In failed"])))
+        guard password.count >= 6 else {
+            errorMessage = "密碼至少需要6個字符"
+            showError = true
             return
         }
         
-        // Create Firebase credential with nonce
-        let credential = OAuthProvider.credential(
-            withProviderID: "apple.com",
-            idToken: idTokenString,
-            rawNonce: nonce // 使用生成的 nonce
-        )
-
-        handleAppleSignIn(credential: credential, appleIDCredential: appleIDCredential)
-
-        // 保存用戶全名
-        if let fullName = appleIDCredential.fullName {
-            let displayName = [
-                fullName.givenName,
-                fullName.familyName
-            ].compactMap { $0 }.joined(separator: " ")
-            
-            print("👤 Constructed display name: \(displayName)")
-            
-            if !displayName.isEmpty {
-                print("🔄 Starting profile update...")
-                // 使用 Auth.auth().currentUser 而不是 authResult
-                if let currentUser = Auth.auth().currentUser {
-                    let changeRequest = currentUser.createProfileChangeRequest()
-                    changeRequest.displayName = displayName
-                    changeRequest.commitChanges { error in
-                        if let error = error {
-                            print("❌ Error updating user profile: \(error.localizedDescription)")
-                            print("🔍 Error details: \(error)")
-                        } else {
-                            print("✅ Successfully updated user display name to: \(displayName)")
-                            print("🎉 Profile update completed successfully")
-                        }
-                    }
-                } else {
-                    print("⚠️ No current user found")
-                }
-            } else {
-                print("⚠️ Display name was empty, skipping profile update")
-            }
-        } else {
-            print("ℹ️ No full name provided in Apple credential")
-        }
-    }
-    
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        completion?(.failure(error))
-        print("Sign in with Apple errored: \(error.localizedDescription)")
-    }
-}
-
-extension AppleSignInCoordinator {
-    func handleAppleSignIn(credential: AuthCredential, appleIDCredential: ASAuthorizationAppleIDCredential?) {
-        if let user = Auth.auth().currentUser {
-            if user.isAnonymous {
-                // Case B：匿名 → 與 Apple 連結
-                print("匿名用戶，開始連結 Apple 帳號")
-                linkAnonymousUserToApple(credential: credential, fullName: appleIDCredential?.fullName)
-            } else {
-                // Case C：一般登入使用者
-                print("Current user is not anonymous, consider linking or show a message.")
-            }
-        } else {
-            // Case A：尚未登入 → 以 Apple 帳號登入
-            print("尚未登入，開始以 Apple 帳號登入")
-            signInWithApple(credential: credential, fullName: appleIDCredential?.fullName)
-        }
-    }
-
-    private func linkAnonymousUserToApple(credential: AuthCredential, fullName: PersonNameComponents?) {
-        guard let user = Auth.auth().currentUser else {
-            print("找不到當前用戶")
-            self.completion?(.failure(NSError(
-                domain: "AppleSignIn",
-                code: -1,
-                userInfo: [NSLocalizedDescriptionKey: "找不到當前用戶"]
-            )))
-            return
-        }
+        isLoading = true
         
-        user.link(with: credential) { [weak self] authResult, error in
-            if let error = error as NSError? {
-                print("連結 Apple 帳號失敗：\(error.localizedDescription)")
-                self?.completion?(.failure(error))
-                return
-            }
-            
-            // 成功連結後更新用戶資料
-            if let fullName = fullName {
-                let displayName = [
-                    fullName.givenName,
-                    fullName.familyName
-                ].compactMap { $0 }.joined(separator: " ")
+        Task {
+            do {
+                let result = try await Auth.auth().createUser(withEmail: email, password: password)
                 
-                if !displayName.isEmpty {
-                    let changeRequest = authResult?.user.createProfileChangeRequest()
-                    changeRequest?.displayName = displayName
-                    changeRequest?.commitChanges { error in
-                        if let error = error {
-                            print("❌ 更新用戶資料失敗：\(error.localizedDescription)")
-                        } else {
-                            print("✅ 成功更新用戶顯示名稱為：\(displayName)")
-                        }
-                    }
+                // Update user profile if needed
+                let changeRequest = result.user.createProfileChangeRequest()
+                if !fullName.isEmpty {
+                    changeRequest.displayName = fullName
+                }
+                try await changeRequest.commitChanges()
+                
+                await MainActor.run {
+                    isLoading = false
+                    authViewModel.handleSuccessfulLogin()
+                    dismiss()
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = error.localizedDescription
+                    showError = true
                 }
             }
-            
-            // 完成回調
-            if let authResult = authResult {
-                self?.completion?(.success(authResult))
-            }
-        }
-    }
-
-    private func signInWithApple(credential: AuthCredential, fullName: PersonNameComponents?) {
-        Auth.auth().signIn(with: credential) { [weak self] authResult, error in
-            if let error = error {
-                self?.completion?(.failure(error))
-                return
-            }
-            
-            // 成功登入後更新用戶資料
-            if let fullName = fullName {
-                let displayName = [
-                    fullName.givenName,
-                    fullName.familyName
-                ].compactMap { $0 }.joined(separator: " ")
-                
-                if !displayName.isEmpty {
-                    let changeRequest = authResult?.user.createProfileChangeRequest()
-                    changeRequest?.displayName = displayName
-                    changeRequest?.commitChanges { error in
-                        if let error = error {
-                            print("❌ Error updating user profile: \(error.localizedDescription)")
-                        } else {
-                            print("✅ Successfully updated user display name to: \(displayName)")
-                        }
-                    }
-                }
-            }
-            
-            if let authResult = authResult {
-                self?.completion?(.success(authResult))
-            }
-        }
-    }
-}
-
-struct Choice: Codable, Hashable {
-    let meaning: String
-    let text: String
-}
-
-struct Question: Codable {
-    let question: String
-    let choices: [Choice]
-}
-
-struct QuestionList: Codable {
-    let questions: [SimpleQuestion]
-    let scenario_questions: [ScenarioQuestion]
-}
-
-struct SimpleQuestion: Codable {
-    let question: String
-    let choices: [String]
-}
-
-struct ScenarioQuestion: Codable {
-    let scenario: String
-    let choices: [Choice]
-}
-
-struct TraitButton: View {
-    let title: String
-    let action: () -> Void
-    
-        var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.custom("NotoSansTC-Regular", size: 16))
-                .foregroundColor(.customText)
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.customSecondary)
-                .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(.customAccent, lineWidth: 1)
-                )
         }
     }
 
@@ -5602,7 +5755,9 @@ class AppOpenAdManager: NSObject, GADFullScreenContentDelegate {
         if let ad = appOpenAd {
             isShowingAd = true
             print("📱 [AppOpenAd] 開始展示廣告")
-            if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.keyWindow ?? windowScene.windows.first,
+           let rootViewController = window.rootViewController {
                 ad.present(fromRootViewController: rootViewController)
             }
         }
@@ -5619,14 +5774,14 @@ class AppOpenAdManager: NSObject, GADFullScreenContentDelegate {
     
     // MARK: - GADFullScreenContentDelegate
     
-    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+    nonisolated func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         appOpenAd = nil
         isShowingAd = false
         print("📱 [AppOpenAd] 廣告關閉，開始預載下一個")
         loadAd()
     }
     
-    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+    nonisolated func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
         appOpenAd = nil
         isShowingAd = false
         print("❌ [AppOpenAd] 廣告展示失敗: \(error.localizedDescription)")
@@ -5756,42 +5911,84 @@ class QuestionManager: ObservableObject {
             var newQuestions: [Question] = []
             
             for document in snapshot.documents {
-                if let questionsData = document.get("questions") as? [[String: Any]] {
-                    for questionData in questionsData {
-                        if let scenario = questionData["question"] as? String,
-                           let choicesData = questionData["choices"] as? [String: [String: String]] {
-                            
-                            let choices = choicesData.values.compactMap { choiceDict -> Choice? in
-                                guard let text = choiceDict["text"],
-                                      let meaning = choiceDict["meaning"] else {
-                                    return nil
+                do {
+                    if let questionsData = document.get("questions") as? [[String: Any]] {
+                        for questionData in questionsData {
+                            if let scenario = questionData["question"] as? String,
+                               let choicesData = questionData["choices"] as? [String: [String: String]] {
+                                
+                                let choices: [Choice] = choicesData.values.compactMap { choiceDict -> Choice? in
+                                    guard let text = choiceDict["text"],
+                                          let meaning = choiceDict["meaning"] else {
+                                        print("⚠️ [Questions] 無效的選項資料: \(choiceDict)")
+                                        return nil
+                                    }
+                                    return Choice(text: text, meaning: meaning)
                                 }
-                                return Choice(meaning: meaning, text: text)
+                                
+                                // 只有當選項不為空時才加入問題
+                                if !choices.isEmpty {
+                                    let question = Question(question: scenario, choices: choices)
+                                    newQuestions.append(question)
+                                } else {
+                                    print("⚠️ [Questions] 問題沒有有效選項，跳過: \(scenario)")
+                                }
+                            } else {
+                                print("⚠️ [Questions] 無效的問題資料結構: \(questionData)")
                             }
-                            
-                            let question = Question(question: scenario, choices: choices)
-                            newQuestions.append(question)
                         }
+                    } else {
+                        print("⚠️ [Questions] 文件格式不正確: \(document.documentID)")
                     }
+                } catch {
+                    print("❌ [Questions] 處理文件時發生錯誤: \(document.documentID), 錯誤: \(error.localizedDescription)")
+                    // 記錄錯誤但繼續處理其他文件
+                    ErrorManager.shared.logError(
+                        category: .aiResponseInvalidSchema,
+                        message: "處理問題文件時發生錯誤",
+                        details: [
+                            "document_id": document.documentID,
+                            "error": error.localizedDescription
+                        ]
+                    )
                 }
             }
             
             // 更新快取
             if !newQuestions.isEmpty {
-                let encoder = JSONEncoder()
-                if let encoded = try? encoder.encode(newQuestions) {
+                do {
+                    let encoder = JSONEncoder()
+                    let encoded = try encoder.encode(newQuestions)
                     UserDefaults.standard.set(encoded, forKey: questionsCacheKey)
                     UserDefaults.standard.set(now, forKey: lastUpdateTimeKey)
+                    
+                    await MainActor.run {
+                        self.questions = newQuestions
+                    }
+                    print("✅ [Questions] 問題庫更新成功，載入 \(newQuestions.count) 個問題")
+                } catch {
+                    print("❌ [Questions] 編碼問題資料失敗: \(error.localizedDescription)")
+                    ErrorManager.shared.logError(
+                        category: .unknown,
+                        message: "編碼問題資料失敗",
+                        details: ["error": error.localizedDescription]
+                    )
                 }
-                
-                await MainActor.run {
-                    self.questions = newQuestions
-                }
-                print("✅ [Questions] 問題庫更新成功")
+            } else {
+                print("⚠️ [Questions] 沒有獲取到任何有效問題")
             }
             
         } catch {
             print("❌ [Questions] 更新問題庫失敗: \(error.localizedDescription)")
+            // 記錄詳細錯誤信息
+            ErrorManager.shared.logError(
+                category: .apiCallNetworkError,
+                message: "Firestore 問題庫更新失敗",
+                details: [
+                    "error": error.localizedDescription,
+                    "error_type": String(describing: type(of: error))
+                ]
+            )
         }
     }
     
@@ -6646,6 +6843,277 @@ struct SpecialRequirementView: View {
         }
     }
     
+    // MARK: - 新版提示詞準備方法 (適用於新workflow: 資料填寫->設計主軸->特殊需求->生成結果)
+    private func preparePromptv2(
+        formData: FormData, 
+        designFocusData: DesignFocusData, 
+        specialRequirementData: SpecialRequirementData?
+    ) -> String {
+        
+        // 1. 基本資料部分
+        var formDataString = """
+        爸爸姓名: \(formData.fatherName)
+        媽媽姓名: \(formData.motherName)
+        姓氏選擇: \(formData.surnameChoice)
+        """
+        
+        // 只有非空的中間字才加入
+        if !formData.middleName.isEmpty {
+            formDataString += "\n指定中間字: \(formData.middleName)"
+        }
+        
+        formDataString += """
+        
+        單/雙名: \(formData.numberOfNames == 1 ? "單名" : "雙名")
+        性別: \(formData.gender)
+        """
+        
+        // 2. 設計主軸部分
+        var designFocusString = ""
+        if !designFocusData.selectedOptions.isEmpty {
+            designFocusString = """
+            
+            設計主軸:
+            \(designFocusData.selectedOptions.map { "- \($0)" }.joined(separator: "\n"))
+            """
+        }
+        
+        // 如果有自定義描述，則加入
+        if let customDescription = designFocusData.customDescription, !customDescription.isEmpty {
+            if designFocusString.isEmpty {
+                designFocusString = "\n設計主軸:"
+            }
+            designFocusString += "\n- 自定義描述: \(customDescription)"
+        }
+        
+        // 3. 特殊需求部分
+        var specialRequirementString = ""
+        if let specialRequirementData = specialRequirementData {
+            if !specialRequirementData.selectedRequirements.isEmpty {
+                specialRequirementString = """
+                
+                特殊需求:
+                \(specialRequirementData.selectedRequirements.map { "- \($0)" }.joined(separator: "\n"))
+                """
+            }
+            
+            // 如果有詳細描述，則加入
+            if let detailDescription = specialRequirementData.detailDescription, !detailDescription.isEmpty {
+                if specialRequirementString.isEmpty {
+                    specialRequirementString = "\n特殊需求:"
+                }
+                specialRequirementString += "\n- 詳細說明: \(detailDescription)"
+            }
+        }
+        
+        // 4. 組合完整的表單資料
+        let completeFormData = formDataString + designFocusString + specialRequirementString
+        
+        // 5. 使用專門為新workflow設計的模板
+        let template = """
+        請根據以下表單資料為嬰兒生成中文名字：
+
+        命名要求：
+        1. 名字為單名或雙名，務必確保與基本資料中的單雙名一致。
+        2. 如有指定中間字，須包含於名中。
+        3. 名字符合嬰兒性別。
+        4. 典故來源於具體內容不可僅引用篇名。
+        5. 典故與名字有明確聯繫，並詳述其關係。
+        6. 根據設計主軸提供分析，說明名字如何體現設計理念。
+        7. 根據特殊需求提供分析，說明名字如何滿足特殊要求。
+        
+        注意事項：
+        1. 請確保輸出格式符合JSON規範。
+        2. 所有字串值使用雙引號，並適當使用轉義字符。
+        3. 請使用繁體中文，禁止使用簡體中文。
+
+        基本資料：{{formData}}
+        """
+        
+        print("🔄 [Prompts] 使用新workflow專用模板v2: \(template)")
+        print("📝 [FormData] 完整表單資料v2: \(completeFormData)")
+        
+        // 6. 將資料填入模板
+        return template.replacingOccurrences(of: "{{formData}}", with: completeFormData)
+    }
+    
+    // MARK: - 新版API調用方法 (適用於新workflow，兼容v1結果模板)
+    private func callOpenAIAPIv2(with prompt: String, formData: FormData) async throws -> (String, [String: String], [String]) {
+        let monitor = PerformanceMonitor.shared
+        
+        monitor.start("API Setup v2")
+        let apiKey = APIConfig.openAIKey
+        let service = OpenAIServiceFactory.service(apiKey: apiKey)
+        monitor.end("API Setup v2")
+
+        // 1. 定義典故分析的 Schema
+        let literaryAllusionSchema = JSONSchema(
+            type: .object,
+            properties: [
+                "source": JSONSchema(type: .string),
+                "original_text": JSONSchema(type: .string),
+                "interpretation": JSONSchema(type: .string),
+                "connection": JSONSchema(type: .string)
+            ],
+            required: ["source", "original_text", "interpretation", "connection"],
+            additionalProperties: false
+        )
+
+        // 2. 定義分析的 Schema (簡化版，不包含情境分析)
+        let analysisSchema = JSONSchema(
+            type: .object,
+            properties: [
+                "character_meaning": JSONSchema(type: .string),
+                "literary_allusion": literaryAllusionSchema,
+                "design_focus_analysis": JSONSchema(type: .string), // 新增：設計主軸分析
+                "special_requirements_analysis": JSONSchema(type: .string) // 新增：特殊需求分析
+            ],
+            required: ["character_meaning", "literary_allusion", "design_focus_analysis", "special_requirements_analysis"],
+            additionalProperties: false
+        )
+
+        // 3. 定義回應格式的 Schema
+        let responseFormatSchema = JSONSchemaResponseFormat(
+            name: "name_generation_v2",
+            strict: true,
+            schema: JSONSchema(
+                type: .object,
+                properties: [
+                    "name": JSONSchema(type: .string),
+                    "analysis": analysisSchema
+                ],
+                required: ["name", "analysis"],
+                additionalProperties: false
+            )
+        )
+
+        let messages: [ChatCompletionParameters.Message] = [
+            .init(role: .system, content: .text(PromptManager.shared.getSystemPrompt())),
+            .init(role: .user, content: .text(prompt))
+        ]
+
+        let parameters = ChatCompletionParameters(
+            messages: messages,
+            model: .gpt4omini,
+            responseFormat: .jsonSchema(responseFormatSchema)
+        )
+
+        monitor.start("API Request Preparation v2")
+        let completionObject = try await service.startChat(parameters: parameters)
+        monitor.end("API Request Preparation v2")
+        
+        monitor.start("Response Processing v2")
+        
+        guard let jsonString = completionObject.choices.first?.message.content,
+              let jsonData = jsonString.data(using: .utf8) else {
+            ErrorManager.shared.logError(
+                category: .aiResponseMalformedJSON,
+                message: "Invalid AI response format v2 (SpecialRequirementView)",
+                details: [
+                    "prompt": prompt,
+                    "response": completionObject.choices.first?.message.content ?? "No content"
+                ]
+            )
+            throw NSError(domain: "OpenAIError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"])
+        }
+        
+        do {
+            let jsonResult = try JSONDecoder().decode(NameGenerationResultv2.self, from: jsonData)
+            
+            // 獲取五行屬性
+            let elements = jsonResult.name.map { char in
+                CharacterManager.shared.getElement(for: String(char))
+            }
+            
+            // 構建分析字典 (兼容v1模板格式)
+            let analysisDict: [String: String] = [
+                "字義分析": jsonResult.analysis.character_meaning,
+                "典故分析": """
+                    出處：\(jsonResult.analysis.literary_allusion.source)
+                    原文：\(jsonResult.analysis.literary_allusion.original_text)
+                    釋義：\(jsonResult.analysis.literary_allusion.interpretation)
+                    連結：\(jsonResult.analysis.literary_allusion.connection)
+                    """,
+                "設計主軸分析": jsonResult.analysis.design_focus_analysis,
+                "特殊需求分析": jsonResult.analysis.special_requirements_analysis
+            ]
+
+            monitor.end("Response Processing v2")
+            
+            // Add character count validation
+            let expectedCharCount = formData.numberOfNames
+            let actualCharCount = jsonResult.name.count
+            
+            // 合理的名字長度範圍：單名 2-3 字，雙名 3-4 字
+            let minLength = formData.numberOfNames + 1  // 至少需要姓氏 + 指定字數
+            let maxLength = formData.numberOfNames + 2  // 最多姓氏 2 字 + 指定字數
+            
+            if actualCharCount < minLength || actualCharCount > maxLength {
+                ErrorManager.shared.logError(
+                    category: .aiResponseWrongCharacterCount,
+                    message: "生成名字字數錯誤 v2 (SpecialRequirementView)",
+                    details: [
+                        "expected_range": "\(minLength)-\(maxLength)",
+                        "actual_count": "\(actualCharCount)",
+                        "generated_name": jsonResult.name,
+                        "father_name": formData.fatherName,
+                        "mother_name": formData.motherName
+                    ]
+                )
+                showCharCountError = true
+                generatedNameWithError = jsonResult.name
+                throw NameGenerationError.wrongCharacterCount(
+                    expected: expectedCharCount,
+                    actual: actualCharCount
+                )
+            }
+            
+            return (jsonResult.name, analysisDict, elements)
+            
+        } catch let decodingError as DecodingError {
+            ErrorManager.shared.logError(
+                category: .aiResponseMalformedJSON,
+                message: "Failed to decode AI response v2 (SpecialRequirementView)",
+                details: [
+                    "error": decodingError.localizedDescription,
+                    "json": String(data: jsonData, encoding: .utf8) ?? "Invalid JSON"
+                ]
+            )
+            throw decodingError
+        } catch {
+            ErrorManager.shared.logError(
+                category: .unknown,
+                message: "Unexpected error in AI response handling v2 (SpecialRequirementView)",
+                details: [
+                    "error": error.localizedDescription,
+                    "prompt": prompt
+                ]
+            )
+            throw error
+        }
+    }
+    
+    // MARK: - API金鑰診斷方法
+    private func diagnoseAPIKeyIssue() -> String {
+        print("🔍 [API Diagnosis] 開始診斷API金鑰問題...")
+        
+        // 檢查 API 金鑰格式
+        let apiKey = APIConfig.openAIKey
+        if apiKey.isEmpty {
+            return "API金鑰未設定：請檢查應用程式設定。"
+        }
+        
+        if !apiKey.hasPrefix("sk-") {
+            return "API金鑰格式錯誤：OpenAI API金鑰應該以 'sk-' 開頭。"
+        }
+        
+        if apiKey.count < 40 {
+            return "API金鑰長度異常：OpenAI API金鑰長度應該超過40個字符。"
+        }
+        
+        return "API金鑰格式正確，但可能已過期或無效。請檢查OpenAI帳戶中的API金鑰狀態。"
+    }
+    
     // MARK: - 錯誤分類方法
     private func categorizeError(_ error: Error) -> String {
         print("🔍 [Error Categorization] 開始分析錯誤...")
@@ -6735,347 +7203,5 @@ struct SpecialRequirementView: View {
         print("🔍 [Error Categorization] 未知錯誤類型: \(type(of: error))")
         return "未知錯誤：\(error.localizedDescription)。請重試，如問題持續發生，請聯繫客服。"
     }
-    
-    // MARK: - API金鑰診斷方法 (SpecialRequirementView)
-    private func diagnoseAPIKeyIssue() -> String {
-        print("🔍 [API Diagnosis] 開始診斷API金鑰問題... (SpecialRequirementView)")
-        
-        // 檢查 API 金鑰格式
-        do {
-            let apiKey = APIConfig.openAIKey
-            
-            // 基本格式檢查
-            if apiKey.isEmpty {
-                return "API金鑰為空。請在Config.plist中設定有效的OpenAI API金鑰。"
-            }
-            
-            if !apiKey.hasPrefix("sk-") {
-                return "API金鑰格式錯誤。OpenAI API金鑰應以'sk-'開頭。請檢查Config.plist中的設定。"
-            }
-            
-            if apiKey.count < 50 {
-                return "API金鑰長度不足。請確認Config.plist中的API金鑰是完整的。"
-            }
-            
-            // 檢查是否包含無效字符
-            let allowedCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_"))
-            if apiKey.rangeOfCharacter(from: allowedCharacters.inverted) != nil {
-                return "API金鑰包含無效字符。請檢查Config.plist中是否有多餘的空格或特殊字符。"
-            }
-            
-            print("🔍 [API Diagnosis] API金鑰格式檢查通過 (SpecialRequirementView)")
-            return "可能是網路連線問題或OpenAI服務暫時不可用。請檢查網路連線後重試。"
-            
-        } catch {
-            return "無法讀取API金鑰配置。請確認Config.plist檔案存在且格式正確。"
-        }
-    }
-    
-    // MARK: - 輔助方法 - preparePromptv2 (適用於SpecialRequirementView)
-    private func preparePromptv2(
-        formData: FormData, 
-        designFocusData: DesignFocusData, 
-        specialRequirementData: SpecialRequirementData?
-    ) -> String {
-        
-        // 1. 基本資料部分
-        var formDataString = """
-        爸爸姓名: \(formData.fatherName)
-        媽媽姓名: \(formData.motherName)
-        姓氏選擇: \(formData.surnameChoice)
-        """
-        
-        // 只有非空的中間字才加入
-        if !formData.middleName.isEmpty {
-            formDataString += "\n指定中間字: \(formData.middleName)"
-        }
-        
-        formDataString += """
-        
-        單/雙名: \(formData.numberOfNames == 1 ? "單名" : "雙名")
-        性別: \(formData.gender)
-        """
-        
-        // 2. 設計主軸部分
-        var designFocusString = ""
-        if !designFocusData.selectedOptions.isEmpty {
-            designFocusString = """
-            
-            設計主軸:
-            \(designFocusData.selectedOptions.map { "- \($0)" }.joined(separator: "\n"))
-            """
-        }
-        
-        // 如果有自定義描述，則加入
-        if let customDescription = designFocusData.customDescription, !customDescription.isEmpty {
-            if designFocusString.isEmpty {
-                designFocusString = "\n設計主軸:"
-            }
-            designFocusString += "\n- 自定義描述: \(customDescription)"
-        }
-        
-        // 3. 特殊需求部分
-        var specialRequirementString = ""
-        if let specialRequirementData = specialRequirementData {
-            if !specialRequirementData.selectedRequirements.isEmpty {
-                specialRequirementString = """
-                
-                特殊需求:
-                \(specialRequirementData.selectedRequirements.map { "- \($0)" }.joined(separator: "\n"))
-                """
-            }
-            
-            // 如果有詳細描述，則加入
-            if let detailDescription = specialRequirementData.detailDescription, !detailDescription.isEmpty {
-                if specialRequirementString.isEmpty {
-                    specialRequirementString = "\n特殊需求:"
-                }
-                specialRequirementString += "\n- 詳細說明: \(detailDescription)"
-            }
-        }
-        
-        // 4. 組合完整的表單資料
-        let completeFormData = formDataString + designFocusString + specialRequirementString
-        
-        // 5. 使用專門為新workflow設計的模板
-        let template = """
-        請根據以下表單資料為嬰兒生成中文名字：
-
-        命名要求：
-        1. 名字為單名或雙名，務必確保與基本資料中的單雙名一致。
-        2. 如有指定中間字，須包含於名中。
-        3. 名字符合嬰兒性別。
-        4. 典故來源於具體內容不可僅引用篇名。
-        5. 典故與名字有明確聯繫，並詳述其關係。
-        6. 根據設計主軸提供分析，說明名字如何體現設計理念。
-        7. 根據特殊需求提供分析，說明名字如何滿足特殊要求。
-        
-        注意事項：
-        1. 請確保輸出格式符合JSON規範。
-        2. 所有字串值使用雙引號，並適當使用轉義字符。
-        3. 請使用繁體中文，禁止使用簡體中文。
-
-        基本資料：{{formData}}
-        """
-        
-        print("🔄 [Prompts] 使用新workflow專用模板v2 (SpecialRequirementView): \(template)")
-        print("📝 [FormData] 完整表單資料v2 (SpecialRequirementView): \(completeFormData)")
-        
-        // 6. 將資料填入模板
-        return template.replacingOccurrences(of: "{{formData}}", with: completeFormData)
-    }
-    
-    // MARK: - API調用方法v2 (適用於SpecialRequirementView)
-    private func callOpenAIAPIv2(with prompt: String, formData: FormData) async throws -> (String, [String: String], [String]) {
-        let monitor = PerformanceMonitor.shared
-        
-        monitor.start("API Setup v2 (SpecialRequirementView)")
-        let apiKey = APIConfig.openAIKey
-        let service = OpenAIServiceFactory.service(apiKey: apiKey)
-        monitor.end("API Setup v2 (SpecialRequirementView)")
-
-        // 1. 定義典故分析的 Schema
-        let literaryAllusionSchema = JSONSchema(
-            type: .object,
-            properties: [
-                "source": JSONSchema(type: .string),
-                "original_text": JSONSchema(type: .string),
-                "interpretation": JSONSchema(type: .string),
-                "connection": JSONSchema(type: .string)
-            ],
-            required: ["source", "original_text", "interpretation", "connection"],
-            additionalProperties: false
-        )
-
-        // 2. 定義分析的 Schema (簡化版，不包含情境分析)
-        let analysisSchema = JSONSchema(
-            type: .object,
-            properties: [
-                "character_meaning": JSONSchema(type: .string),
-                "literary_allusion": literaryAllusionSchema,
-                "design_focus_analysis": JSONSchema(type: .string),
-                "special_requirements_analysis": JSONSchema(type: .string)
-            ],
-            required: ["character_meaning", "literary_allusion", "design_focus_analysis", "special_requirements_analysis"],
-            additionalProperties: false
-        )
-
-        // 3. 定義回應格式的 Schema
-        let responseFormatSchema = JSONSchemaResponseFormat(
-            name: "name_generation_v2",
-            strict: true,
-            schema: JSONSchema(
-                type: .object,
-                properties: [
-                    "name": JSONSchema(type: .string),
-                    "analysis": analysisSchema
-                ],
-                required: ["name", "analysis"],
-                additionalProperties: false
-            )
-        )
-
-        let messages: [ChatCompletionParameters.Message] = [
-            .init(role: .system, content: .text(PromptManager.shared.getSystemPrompt())),
-            .init(role: .user, content: .text(prompt))
-        ]
-
-        let parameters = ChatCompletionParameters(
-            messages: messages,
-            model: .gpt4omini,
-            responseFormat: .jsonSchema(responseFormatSchema)
-        )
-
-        monitor.start("API Request Preparation v2 (SpecialRequirementView)")
-        let completionObject = try await service.startChat(parameters: parameters)
-        monitor.end("API Request Preparation v2 (SpecialRequirementView)")
-        
-        monitor.start("Response Processing v2 (SpecialRequirementView)")
-        
-        // 🔍 打印完整的原始API回覆
-        print("📡 [Raw API Response] ======== 開始原始API回覆 ========")
-        print("📡 [Raw API Response] 完整completionObject: \(completionObject)")
-        print("📡 [Raw API Response] choices數量: \(completionObject.choices.count)")
-        
-        if let firstChoice = completionObject.choices.first {
-            print("📡 [Raw API Response] 第一個choice的message: \(firstChoice.message)")
-            print("📡 [Raw API Response] message.role: \(firstChoice.message.role)")
-            print("📡 [Raw API Response] message.content: \(firstChoice.message.content ?? "nil")")
-        }
-        
-        guard let jsonString = completionObject.choices.first?.message.content,
-              let jsonData = jsonString.data(using: .utf8) else {
-            print("❌ [Raw API Response] 無法獲取有效的JSON回應")
-            print("📡 [Raw API Response] ======== 結束原始API回覆 ========")
-            ErrorManager.shared.logError(
-                category: .aiResponseMalformedJSON,
-                message: "Invalid AI response format v2 (SpecialRequirementView)",
-                details: [
-                    "prompt": prompt,
-                    "response": completionObject.choices.first?.message.content ?? "No content"
-                ]
-            )
-            throw NSError(domain: "OpenAIError", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response format"])
-        }
-        
-        print("📡 [Raw API Response] 原始JSON字串: \(jsonString)")
-        print("📡 [Raw API Response] JSON字串長度: \(jsonString.count)字符")
-        print("📡 [Raw API Response] ======== 結束原始API回覆 ========")
-
-        do {
-            let jsonResult = try JSONDecoder().decode(NameGenerationResultv2.self, from: jsonData)
-            
-            // 🔍 詳細的API回傳結果打印
-            print("✅ [API Response] JSON解析成功 (SpecialRequirementView)")
-            print("📝 [API Response] 原始JSON數據: \(String(data: jsonData, encoding: .utf8) ?? "無法讀取")")
-            print("📝 [API Response] 生成的名字: '\(jsonResult.name)'")
-            print("📝 [API Response] 名字字數: \(jsonResult.name.count)")
-            print("📝 [API Response] 名字的每個字符: \(jsonResult.name.map { "'\($0)'" }.joined(separator: ", "))")
-            print("📝 [API Response] 字義分析: \(jsonResult.analysis.character_meaning)")
-            print("📝 [API Response] 典故來源: \(jsonResult.analysis.literary_allusion.source)")
-            print("📝 [API Response] 典故原文: \(jsonResult.analysis.literary_allusion.original_text)")
-            print("📝 [API Response] 典故釋義: \(jsonResult.analysis.literary_allusion.interpretation)")
-            print("📝 [API Response] 典故連結: \(jsonResult.analysis.literary_allusion.connection)")
-            print("📝 [API Response] 設計主軸分析: \(jsonResult.analysis.design_focus_analysis)")
-            print("📝 [API Response] 特殊需求分析: \(jsonResult.analysis.special_requirements_analysis)")
-            
-            // 獲取五行屬性
-            let elements = jsonResult.name.map { char in
-                CharacterManager.shared.getElement(for: String(char))
-            }
-            
-            // 構建分析字典 (兼容v1模板格式)
-            let analysisDict: [String: String] = [
-                "字義分析": jsonResult.analysis.character_meaning,
-                "典故分析": """
-                    出處：\(jsonResult.analysis.literary_allusion.source)
-                    原文：\(jsonResult.analysis.literary_allusion.original_text)
-                    釋義：\(jsonResult.analysis.literary_allusion.interpretation)
-                    連結：\(jsonResult.analysis.literary_allusion.connection)
-                    """,
-                "設計主軸分析": jsonResult.analysis.design_focus_analysis,
-                "特殊需求分析": jsonResult.analysis.special_requirements_analysis
-            ]
-
-            monitor.end("Response Processing v2 (SpecialRequirementView)")
-            
-            // Add character count validation
-            let expectedCharCount = formData.numberOfNames
-            let actualCharCount = jsonResult.name.count
-            
-            // 合理的名字長度範圍：單名 2-3 字，雙名 3-4 字
-            let minLength = formData.numberOfNames + 1  // 至少需要姓氏 + 指定字數
-            let maxLength = formData.numberOfNames + 2  // 最多姓氏 2 字 + 指定字數
-            
-            if actualCharCount < minLength || actualCharCount > maxLength {
-                ErrorManager.shared.logError(
-                    category: .aiResponseWrongCharacterCount,
-                    message: "生成名字字數錯誤 v2 (SpecialRequirementView)",
-                    details: [
-                        "expected_range": "\(minLength)-\(maxLength)",
-                        "actual_count": "\(actualCharCount)",
-                        "generated_name": jsonResult.name,
-                        "father_name": formData.fatherName,
-                        "mother_name": formData.motherName
-                    ]
-                )
-                showCharCountError = true
-                generatedNameWithError = jsonResult.name
-                throw NameGenerationError.wrongCharacterCount(
-                    expected: expectedCharCount,
-                    actual: actualCharCount
-                )
-            }
-            
-            return (jsonResult.name, analysisDict, elements)
-            
-        } catch let decodingError as DecodingError {
-            // JSON 解析錯誤
-            ErrorManager.shared.logError(
-                category: .aiResponseMalformedJSON,
-                message: "Failed to decode AI response v2 (SpecialRequirementView)",
-                details: [
-                    "error": decodingError.localizedDescription,
-                    "json": String(data: jsonData, encoding: .utf8) ?? "Invalid JSON"
-                ]
-            )
-            throw decodingError
-            
-        } catch let networkError as URLError {
-            // 網路相關錯誤
-            let category: ErrorCategory = {
-                switch networkError.code {
-                case .timedOut:
-                    return .apiCallTimeout
-                case .notConnectedToInternet:
-                    return .apiCallNetworkError
-                default:
-                    return .apiCallNetworkError
-                }
-            }()
-            
-            ErrorManager.shared.logError(
-                category: category,
-                message: "API network error v2 (SpecialRequirementView)",
-                details: [
-                    "error_code": "\(networkError.code.rawValue)",
-                    "error_description": networkError.localizedDescription
-                ]
-            )
-            throw networkError
-            
-        } catch {
-            // 其他未預期的錯誤
-            ErrorManager.shared.logError(
-                category: .unknown,
-                message: "Unexpected error in AI response handling v2 (SpecialRequirementView)",
-                details: [
-                    "error": error.localizedDescription,
-                    "prompt": prompt
-                ]
-            )
-            throw error
-        }
-    }
-
 }
+

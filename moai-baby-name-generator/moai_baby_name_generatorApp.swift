@@ -20,34 +20,75 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
     print("🚀 開始初始化應用程式")
     
-    // Initialize Firebase first
-    FirebaseApp.configure()
-    print("✅ Firebase 初始化完成")
+    // 設置全域例外處理
+    setupGlobalExceptionHandling()
     
-    // Track app install if first launch
-    trackAppInstallIfNeeded()
-    
-    // Then configure App Check
-    AppCheckManager.shared.configureAppCheck()
-    
-    // Initialize Google Mobile Ads
-    GADMobileAds.sharedInstance().start(completionHandler: nil)
-    
-    // 請求推播權限
-    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-      if granted {
-        print("推播通知權限已獲得")
-        DispatchQueue.main.async {
-          UIApplication.shared.registerForRemoteNotifications()
+    do {
+        // Initialize Firebase first
+        FirebaseApp.configure()
+        print("✅ Firebase 初始化完成")
+        
+        // Track app install if first launch
+        trackAppInstallIfNeeded()
+        
+        // Then configure App Check
+        AppCheckManager.shared.configureAppCheck()
+        
+        // Initialize Google Mobile Ads
+        GADMobileAds.sharedInstance().start(completionHandler: nil)
+        
+        // 請求推播權限
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+          if granted {
+            print("推播通知權限已獲得")
+            DispatchQueue.main.async {
+              UIApplication.shared.registerForRemoteNotifications()
+            }
+          } else if let error = error {
+            print("推播通知權限錯誤: \(error.localizedDescription)")
+          }
         }
-      } else if let error = error {
-        print("推播通知權限錯誤: \(error.localizedDescription)")
-      }
+        
+        FirebaseConfiguration.shared.setLoggerLevel(.min)
+        
+    } catch {
+        print("❌ [AppDelegate] 應用程式初始化失敗: \(error.localizedDescription)")
+        // 記錄錯誤但繼續啟動
+        fatalError("應用程式初始化失敗: \(error.localizedDescription)")
     }
     
-    FirebaseConfiguration.shared.setLoggerLevel(.min)
-    
     return true
+  }
+  
+  private func setupGlobalExceptionHandling() {
+      // 設置未捕獲例外的處理器
+      NSSetUncaughtExceptionHandler { exception in
+          print("❌ [FATAL] 未捕獲的例外: \(exception)")
+          print("❌ [FATAL] 例外原因: \(exception.reason ?? "未知原因")")
+          print("❌ [FATAL] 堆疊追蹤: \(exception.callStackSymbols)")
+          
+          // 嘗試記錄到 Firebase（如果已初始化）
+          DispatchQueue.global().async {
+              ErrorManager.shared.logError(
+                  category: .unknown,
+                  message: "未捕獲的例外",
+                  details: [
+                      "exception_name": exception.name.rawValue,
+                      "exception_reason": exception.reason ?? "未知原因",
+                      "stack_trace": exception.callStackSymbols.joined(separator: "\n")
+                  ]
+              )
+          }
+      }
+      
+      // 設置信號處理器
+      signal(SIGABRT) { signal in
+          print("❌ [FATAL] 收到 SIGABRT 信號")
+      }
+      
+      signal(SIGSEGV) { signal in
+          print("❌ [FATAL] 收到 SIGSEGV 信號")
+      }
   }
     
     func application(_ app: UIApplication,
@@ -115,8 +156,21 @@ struct moai_baby_name_generatorApp: App {
         WindowGroup {
             ContentView()
                 .task {
-                    // 在 App 啟動時更新問題庫
-                    await QuestionManager.shared.updateQuestionsIfNeeded()
+                    // 延遲 Firebase 操作，讓 UI 先完成初始化
+                    try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 秒延遲
+                    
+                    // 在 App 啟動時更新問題庫，加入錯誤處理
+                    do {
+                        await QuestionManager.shared.updateQuestionsIfNeeded()
+                    } catch {
+                        print("❌ [App] 啟動時更新問題庫失敗: \(error.localizedDescription)")
+                        // 記錄錯誤但不讓 App 崩潰
+                        ErrorManager.shared.logError(
+                            category: .unknown,
+                            message: "App 啟動時更新問題庫失敗",
+                            details: ["error": error.localizedDescription]
+                        )
+                    }
                 }
         }
     }
